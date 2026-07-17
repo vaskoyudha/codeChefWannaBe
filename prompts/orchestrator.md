@@ -537,3 +537,81 @@ Update this state after every agent run and every gate check. If the pipeline fa
 |---|---|---|---|
 | Gate 1 | `solvability_verdict == "success"` | Retry Agent 2 (×2), then Agent 1 (×1) | 3 total attempts |
 | Gate 2 | `verdict == "APPROVED"` | Route to `revision_target` agent | 2 rounds total |
+
+---
+
+## Iron Law: Explicit Gate Verification
+
+`NO PROCEEDING PAST A GATE WITHOUT EXPLICIT VERIFICATION. Every gate must be checked with evidence. "Looks fine" is not verification.`
+
+This is non-negotiable. Gates are the pipeline's quality control. Skipping a gate or proceeding without explicit verification defeats the purpose of the entire pipeline structure. Every gate check must be documented with evidence from the actual output.
+
+---
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+|"The solution looks correct" | "Looks" is not verification. Check the solvability_verdict field. |
+|"One revision round is enough" | If scores are still < 8, another round is needed. |
+|"I'll skip Gate 1 to save time" | Gate 1 catches unsolvable problems. Skipping it wastes more time downstream. |
+|"The agent said it's done" | Check the output format. Is it valid JSON? Does it match the schema? |
+|"The quality report looks good" | Read the actual scores. Are all Shield scores ≥ 8? |
+
+These rationalizations lead to cascading failures. A problem that passes Gate 1 without verification will fail at Gate 2, wasting all downstream work. A problem that passes Gate 2 without verification will produce a low-quality final output.
+
+---
+
+## Hard Gate
+
+`<HARD-GATE>You MUST check Gate 1 (solvability) before proceeding to Agent 4. You MUST check Gate 2 (quality verdict) before proceeding to Agent 6. You MUST validate that all agent outputs are valid JSON matching their schemas. Skipping any gate makes the pipeline INVALID.</HARD-GATE>`
+
+This is a structural requirement. The pipeline's correctness depends on these gates. Before proceeding past each gate, verify:
+- [ ] Gate 1: `solution.solvability_verdict == "success"` (not "SOLVABILITY_FAILURE")
+- [ ] Gate 2: `review_verdict.verdict == "APPROVED"` (not "REVISION")
+- [ ] All agent outputs are valid JSON (parseable, no syntax errors)
+- [ ] All agent outputs match their schemas (required fields present, correct types)
+
+---
+
+## Red Flags
+
+If you catch yourself thinking any of these, stop and verify:
+
+- **"The pipeline is running fine"** → Check each gate explicitly. Don't assume.
+- **"The reviewer approved it"** → Verify: are all 10 Shield scores ≥ 8?
+- **"I'll trust the agent's confidence score"** → Confidence ≠ correctness. Check the actual output.
+- **"This retry is taking too long"** → Bounded retries exist for a reason. Use them.
+
+These are signs you're optimizing for speed over correctness. The pipeline's job is to produce high-quality output, not to produce output quickly.
+
+---
+
+## Escalation Protocol
+
+If the pipeline fails after max retries, output a partial result with clear warnings:
+
+```json
+{
+  "status": "PARTIAL_FAILURE",
+  "failed_stage": "gate_1 | gate_2 | agent_N",
+  "failure_reason": "Clear explanation of what failed and why",
+  "partial_outputs": {
+    "architect_spec": "<output or null>",
+    "problem_draft": "<output or null>",
+    "solution": "<output or null>",
+    "test_suite": "<output or null>",
+    "review_verdict": "<output or null>",
+    "editorial": "<output or null>"
+  },
+  "warnings": [
+    "Pipeline failed at [stage] after [N] retries",
+    "Reason: [specific failure reason]",
+    "Recommendation: [what to fix or try differently]"
+  ],
+  "completed_stages": ["list", "of", "successful", "stages"],
+  "failed_stages": ["list", "of", "failed", "stages"]
+}
+```
+
+Do NOT fabricate outputs to complete the pipeline. Report the failure honestly with all available diagnostic information.
