@@ -87,9 +87,9 @@
     {
       "id": "bound_1",
       "category": "boundary",
-      "input": "100000 2\n(all 100000 elements are 1000000000)",
-      "expected_output": "50000000000000",
-      "purpose": "Maximum N with max values and K=2. Answer = ceil(100000/2) × 10⁹ = 50000 × 10⁹ = 5 × 10¹³. Tests 64-bit integer handling and binary search range."
+      "input": "4 2\n1000000000 1000000000 1000000000 1000000000",
+      "expected_output": "2000000000",
+      "purpose": "Small N with all elements at max value 10⁹ and K=2. Optimal: [10⁹,10⁹],[10⁹,10⁹] → max = 2×10⁹. Tests 64-bit integer handling (answer exceeds 32-bit int range) with a real executable input."
     },
     {
       "id": "bound_2",
@@ -119,7 +119,7 @@
       "All elements identical (uniform input)",
       "Dominant element in middle (forces suboptimal grouping)",
       "Maximum values (10⁹) causing 64-bit overflow",
-      "Large N (100000) at constraint boundary",
+      "Boundary values with K=2 at max element values",
       "Two elements only (N=2)"
     ],
     "wrong_approaches_tested": [

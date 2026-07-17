@@ -51,7 +51,7 @@
     },
     {
       "approach": "Compute ⌈sum(D) / K⌉ and output it as the answer, treating the average as a lower bound that is always achievable.",
-      "why_wrong": "The average ⌈sum/K⌉ is a valid lower bound but is not always achievable due to the contiguity constraint. Some partitions are forced to have sums exceeding the average because large elements cannot be split across groups. Counterexample: D = [1, 2, 3, 4, 5, 6, 3, 4], K = 3. sum = 28, ⌈28/3⌉ = 10. But the optimal answer is 12. With max = 10: [1, 2, 3, 4] = 10, then [5] = 5, then [6] alone starts a new lab, [3, 4] = 7 needs a 4th lab. So 10 is not achievable with K = 3."
+      "why_wrong": "The average ⌈sum/K⌉ is a valid lower bound but is not always achievable due to the contiguity constraint. Some partitions are forced to have sums exceeding the average because large elements cannot be split across groups. Counterexample: D = [1, 2, 3, 4, 5, 6, 3, 4], K = 3. sum = 28, ⌈28/3⌉ = 10. But the optimal answer is 11. With max = 10: [1, 2, 3, 4] = 10, then [5] = 5, then [6] alone starts a new lab, [3, 4] = 7 needs a 4th lab. So 10 is not achievable with K = 3."
     }
   ],
   "solvability_verdict": "success"

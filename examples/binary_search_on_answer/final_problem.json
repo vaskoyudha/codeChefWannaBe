@@ -134,7 +134,7 @@
       {"id": "adv_1", "category": "adversarial", "input": "6 2\n10 1 1 10 1 1", "expected_output": "12", "purpose": "Breaks sort-and-distribute approach."},
       {"id": "adv_2", "category": "adversarial", "input": "8 3\n3 1 1 1 1 1 1 3", "expected_output": "4", "purpose": "Breaks equal-count partition approach."},
       {"id": "adv_3", "category": "adversarial", "input": "8 3\n1 2 3 4 5 6 3 4", "expected_output": "11", "purpose": "Breaks ceil(sum/K) approach."},
-      {"id": "bound_1", "category": "boundary", "input": "100000 2\n(all 100000 elements are 1000000000)", "expected_output": "50000000000000", "purpose": "Max N and max values with K=2."},
+      {"id": "bound_1", "category": "boundary", "input": "4 2\n1000000000 1000000000 1000000000 1000000000", "expected_output": "2000000000", "purpose": "Small N with all max values, K=2, tests 64-bit overflow."},
       {"id": "bound_2", "category": "boundary", "input": "5 3\n1000000000 1000000000 1000000000 1000000000 1000000000", "expected_output": "2000000000", "purpose": "All max values, K=3, tests overflow."},
       {"id": "bound_3", "category": "boundary", "input": "10 3\n1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000", "expected_output": "4000000000", "purpose": "All max values, K=3, large answer."}
     ],
@@ -151,7 +151,7 @@
         "All elements identical",
         "Dominant middle element",
         "Maximum values causing 64-bit overflow",
-        "Large N at constraint boundary"
+        "Boundary values with K=2 at max element values"
       ],
       "wrong_approaches_tested": [
         "Sort and distribute: tested by adv_1",
