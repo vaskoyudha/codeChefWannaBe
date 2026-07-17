@@ -1,0 +1,58 @@
+{
+  "approach": "Binary search on the answer. We binary search on the maximum total difficulty D. For each candidate D, we check feasibility using a greedy algorithm: scan experiments left to right, adding each to the current lab; if adding the next experiment would exceed D, start a new lab. If we need at most K labs, D is feasible. The key insight is that feasibility is monotonic: if D is feasible, then D+1 is also feasible (relaxing the limit never increases the number of required labs).",
+  "pseudocode": [
+    "function feasible(D, experiments, N, K):",
+    "    labs_needed = 1",
+    "    current_sum = 0",
+    "    for i = 0 to N - 1:",
+    "        if experiments[i] > D:",
+    "            return false",
+    "        if current_sum + experiments[i] > D:",
+    "            labs_needed = labs_needed + 1",
+    "            current_sum = experiments[i]",
+    "            if labs_needed > K:",
+    "                return false",
+    "        else:",
+    "            current_sum = current_sum + experiments[i]",
+    "    return true",
+    "",
+    "function solve():",
+    "    read N, K",
+    "    read array D of N integers",
+    "",
+    "    lo = max(D)",
+    "    hi = sum(D)",
+    "",
+    "    while lo < hi:",
+    "        mid = lo + (hi - lo) / 2",
+    "        if feasible(mid, D, N, K):",
+    "            hi = mid",
+    "        else:",
+    "            lo = mid + 1",
+    "",
+    "    print lo"
+  ],
+  "time_complexity": "O(N × log(sum(D))) — the binary search range is [max(D), sum(D)], which is at most [1, 10¹⁴], giving at most log₂(10¹⁴) ≈ 47 iterations. Each feasibility check is O(N). With N ≤ 10⁵, total operations are about 10⁵ × 47 ≈ 4.7 × 10⁶, well within the 2-second time limit.",
+  "space_complexity": "O(N) — to store the array of N experiment difficulties. The binary search and feasibility check use O(1) additional space.",
+  "correctness_argument": "**Technique: Monotonicity (Binary Search on Answer).**\n\nDefine f(D) = true if we can partition the experiments into at most K contiguous groups, each with sum ≤ D. We claim f is monotonic: if f(D) is true and D' > D, then f(D') is also true.\n\n*Proof of monotonicity:* Consider the greedy assignment for limit D that uses L ≤ K labs. The greedy algorithm scans left to right, starting a new lab whenever adding the next experiment would exceed D. If we increase the limit to D' > D, the greedy algorithm makes the same or fewer splits (since the condition current_sum + D[i] > D' is harder to trigger than current_sum + D[i] > D). Therefore, the number of labs needed for D' is ≤ L ≤ K, so f(D') is true.\n\n*Binary search correctness:* Since f is monotonic, there exists a threshold D* such that f(D) is false for all D < D* and f(D) is true for all D ≥ D*. The binary search finds exactly D*. D* is the minimum feasible maximum cost, which is the answer.\n\n*Lower bound correctness:* lo = max(D) is a valid lower bound because any partition must place the largest element in some group, and that group's sum is at least max(D). The upper bound hi = sum(D) is valid because putting all experiments in one group gives sum = sum(D), and since K ≥ 1, this is always feasible.",
+  "brute_force_solution": {
+    "approach": "Try all possible ways to partition N experiments into K contiguous groups. This can be done with recursion: for each position, decide whether to place a split or not. We need to choose K-1 split points from N-1 possible positions, giving C(N-1, K-1) partitions. For each partition, compute the maximum group sum and track the minimum.",
+    "time_complexity": "O(C(N, K) × N) — there are C(N-1, K-1) ways to choose split points, and evaluating each partition takes O(N). For N=10⁵ and K=2, this is O(N²) = 10¹⁰, far exceeding the time limit.",
+    "use": "Use this brute force to verify the reference solution on small inputs (N ≤ 20). Generate random test cases with small N and K, run both solutions, and compare outputs. Any mismatch indicates a bug in the reference solution."
+  },
+  "common_wrong_approaches": [
+    {
+      "approach": "Sort the difficulties and distribute them evenly across K labs (e.g., alternating or round-robin assignment after sorting), then return the maximum group sum.",
+      "why_wrong": "This ignores the contiguity constraint. The problem requires each lab to receive a contiguous block of experiments in the original order. Sorting destroys the original order. Counterexample: D = [10, 1, 1, 10, 1, 1], K = 2. Sorting gives [1, 1, 1, 10, 10, 10]. Round-robin: group A gets {1, 1, 10} = 12, group B gets {1, 10, 10} = 21. Max = 21. But the correct answer is 12: [10, 1, 1] and [10, 1, 1], each with sum 12."
+    },
+    {
+      "approach": "Divide the experiments into K groups of equal (or near-equal) count, i.e., each group gets ⌈N/K⌉ or ⌊N/K⌋ consecutive experiments, then return the maximum group sum.",
+      "why_wrong": "Equal-count partitioning does not account for varying difficulties. A group with many large-difficulty experiments may have a much larger sum than a group with few elements. Counterexample: D = [3, 1, 1, 1, 1, 1, 1, 3], K = 3. Equal-count gives groups [3, 1, 1] = 5, [1, 1, 1] = 3, [1, 3] = 4, max = 5. But the optimal partition is [3, 1] = 4, [1, 1, 1, 1] = 4, [1, 3] = 4, max = 4. Equal-count forces an unbalanced split that a flexible partition avoids."
+    },
+    {
+      "approach": "Compute ⌈sum(D) / K⌉ and output it as the answer, treating the average as a lower bound that is always achievable.",
+      "why_wrong": "The average ⌈sum/K⌉ is a valid lower bound but is not always achievable due to the contiguity constraint. Some partitions are forced to have sums exceeding the average because large elements cannot be split across groups. Counterexample: D = [1, 2, 3, 4, 5, 6, 3, 4], K = 3. sum = 28, ⌈28/3⌉ = 10. But the optimal answer is 12. With max = 10: [1, 2, 3, 4] = 10, then [5] = 5, then [6] alone starts a new lab, [3, 4] = 7 needs a 4th lab. So 10 is not achievable with K = 3."
+    }
+  ],
+  "solvability_verdict": "success"
+}

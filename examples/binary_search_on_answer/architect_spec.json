@@ -1,0 +1,32 @@
+{
+  "domain": "dsa",
+  "topic": "binary search",
+  "subtopic": "binary search on answer",
+  "difficulty": {
+    "codeforces_rating": 1400,
+    "tier": "medium",
+    "bloom_level": "apply"
+  },
+  "learning_objective": "After solving this problem, the student will be able to identify monotonic feasibility in minimize-the-maximum partition problems and apply binary search on the answer with a greedy check function.",
+  "prerequisites": [
+    "binary search on sorted arrays",
+    "basic sorting and array traversal",
+    "greedy algorithms fundamentals",
+    "time complexity analysis",
+    "understanding of O(log N) search spaces"
+  ],
+  "core_concept": "monotonic_feasibility",
+  "tags": [
+    "binary search",
+    "greedy",
+    "arrays",
+    "sorting",
+    "implementation"
+  ],
+  "constraint_hints": {
+    "n_range": [1, 100000],
+    "expected_complexity": "O(N log(max_sum))",
+    "time_limit_seconds": 2
+  },
+  "story_direction": "A research institute has N experiments that must run in a fixed order. The director has K identical labs and must assign each experiment to a lab such that each lab gets a contiguous block of experiments. The goal is to minimize the maximum total difficulty assigned to any single lab."
+}

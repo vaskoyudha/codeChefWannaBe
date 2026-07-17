@@ -1,0 +1,55 @@
+{
+  "title": "Lab Assignment",
+  "story": "A research institute is planning a series of N experiments that must be conducted in a fixed sequential order. The institute has K identical laboratories available. The director needs to assign each experiment to a laboratory such that each laboratory receives a contiguous block of experiments (i.e., experiments with consecutive indices). The total difficulty of a laboratory is the sum of difficulties of all experiments assigned to it. The director wants to minimize the maximum total difficulty among all laboratories to ensure a balanced workload.",
+  "statement": "You are given N experiments with difficulties D₁, D₂, ..., Dₙ that must be performed in order. You must partition these experiments into exactly K non-empty contiguous groups (a group consists of experiments with consecutive indices). The cost of a group is the sum of difficulties of all experiments in it. Your goal is to minimize the maximum cost among all K groups.\n\nFormally, you must choose K-1 split points 1 ≤ p₁ < p₂ < ... < p_{K-1} < N such that the groups are:\n- Group 1: D₁, D₂, ..., D_{p₁}\n- Group 2: D_{p₁+1}, ..., D_{p₂}\n- ...\n- Group K: D_{p_{K-1}+1}, ..., Dₙ\n\nMinimize the maximum sum among all K groups.",
+  "input_format": {
+    "line_1": "Two space-separated integers N and K — the number of experiments and the number of laboratories.",
+    "line_2": "N space-separated integers D₁, D₂, ..., Dₙ — the difficulties of the experiments."
+  },
+  "output_format": "Print a single integer — the minimum possible value of the maximum total difficulty among all K laboratories.",
+  "constraints": [
+    "1 ≤ K ≤ N ≤ 10⁵",
+    "1 ≤ Dᵢ ≤ 10⁹",
+    "Time limit: 2 seconds",
+    "Memory limit: 256 MB"
+  ],
+  "sample_tests": [
+    {
+      "input": "5 2\n5 3 1 7 1",
+      "output": "9",
+      "explanation": "We must split [5, 3, 1, 7, 1] into 2 contiguous groups. The optimal partition is [5, 3, 1] and [7, 1], with costs 9 and 8. The maximum cost is 9. No partition achieves a smaller maximum: [5, 3] and [1, 7, 1] gives max(8, 9) = 9; [5] and [3, 1, 7, 1] gives max(5, 12) = 12."
+    },
+    {
+      "input": "4 4\n2 6 3 4",
+      "output": "6",
+      "explanation": "With N = K = 4, each laboratory must receive exactly one experiment. The costs are the individual difficulties: 2, 6, 3, 4. The maximum is 6."
+    },
+    {
+      "input": "6 3\n6 1 2 4 3 2",
+      "output": "7",
+      "explanation": "We must split [6, 1, 2, 4, 3, 2] into 3 contiguous groups. The optimal partition is [6, 1], [2, 4], [3, 2], with costs 7, 6, 5. The maximum cost is 7. We cannot achieve 6: the first element alone is 6, so the first group can only be [6], then [1, 2] = 3, then [4] exceeds 6 when combined with anything after, requiring a 4th group. So 7 is optimal."
+    }
+  ],
+  "notes": [
+    "The answer can be as large as N × max(Dᵢ) = 10¹⁴, which exceeds the range of 32-bit integers. Use 64-bit integer types.",
+    "Each group must be non-empty and contiguous. The order of experiments cannot be changed."
+  ],
+  "subtasks": [
+    {
+      "points": 30,
+      "constraints": [
+        "1 ≤ K ≤ N ≤ 10",
+        "1 ≤ Dᵢ ≤ 100"
+      ],
+      "description": "Small constraints — brute force or exponential approaches are feasible."
+    },
+    {
+      "points": 70,
+      "constraints": [
+        "1 ≤ K ≤ N ≤ 10⁵",
+        "1 ≤ Dᵢ ≤ 10⁹"
+      ],
+      "description": "Full constraints — requires an efficient approach."
+    }
+  ]
+}

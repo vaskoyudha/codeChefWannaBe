@@ -1,0 +1,131 @@
+{
+  "test_cases": [
+    {
+      "id": "basic_1",
+      "category": "basic",
+      "input": "5 2\n5 3 1 7 1",
+      "expected_output": "9",
+      "purpose": "Sample test 1 from problem statement. Verifies basic partitioning into 2 groups with a non-trivial split."
+    },
+    {
+      "id": "basic_2",
+      "category": "basic",
+      "input": "4 4\n2 6 3 4",
+      "expected_output": "6",
+      "purpose": "Sample test 2: N = K forces each element into its own group. Answer is max element."
+    },
+    {
+      "id": "basic_3",
+      "category": "basic",
+      "input": "6 3\n6 1 2 4 3 2",
+      "expected_output": "7",
+      "purpose": "Sample test 3: moderate case with 3 groups. Optimal split [6,1],[2,4],[3,2] gives max 7."
+    },
+    {
+      "id": "basic_4",
+      "category": "basic",
+      "input": "4 2\n3 3 3 3",
+      "expected_output": "6",
+      "purpose": "All elements equal. Optimal split [3,3],[3,3] gives max 6. Tests uniform input handling."
+    },
+    {
+      "id": "edge_1",
+      "category": "edge_case",
+      "input": "1 1\n10",
+      "expected_output": "10",
+      "purpose": "Minimum possible input: N=1, K=1. Single experiment must go to single lab."
+    },
+    {
+      "id": "edge_2",
+      "category": "edge_case",
+      "input": "5 5\n1 2 3 4 5",
+      "expected_output": "5",
+      "purpose": "K = N with varying elements. Each lab gets one experiment, answer is max element = 5."
+    },
+    {
+      "id": "edge_3",
+      "category": "edge_case",
+      "input": "5 2\n1 1 100 1 1",
+      "expected_output": "102",
+      "purpose": "K=2 with a dominant element in the middle. The large element 100 must be grouped with neighbors. Best split: [1,1,100] and [1,1] → max(102, 2) = 102."
+    },
+    {
+      "id": "edge_4",
+      "category": "edge_case",
+      "input": "6 3\n7 7 7 7 7 7",
+      "expected_output": "14",
+      "purpose": "All elements identical (7), K=3. Optimal: [7,7],[7,7],[7,7] → max = 14."
+    },
+    {
+      "id": "edge_5",
+      "category": "edge_case",
+      "input": "2 1\n1000000000 1000000000",
+      "expected_output": "2000000000",
+      "purpose": "K=1 forces all elements into one group. Tests large value handling (answer exceeds 32-bit int range)."
+    },
+    {
+      "id": "adv_1",
+      "category": "adversarial",
+      "input": "6 2\n10 1 1 10 1 1",
+      "expected_output": "12",
+      "purpose": "Breaks wrong approach #1 (sort and distribute). Sorting gives [1,1,1,10,10,10], round-robin yields max(12,21) = 21. Correct answer with contiguous groups: [10,1,1] and [10,1,1] → max = 12."
+    },
+    {
+      "id": "adv_2",
+      "category": "adversarial",
+      "input": "8 3\n3 1 1 1 1 1 1 3",
+      "expected_output": "4",
+      "purpose": "Breaks wrong approach #2 (equal-count partition). Equal-count gives [3,1,1]=5, [1,1,1]=3, [1,3]=4 → max=5. Optimal: [3,1]=4, [1,1,1,1]=4, [1,3]=4 → max=4."
+    },
+    {
+      "id": "adv_3",
+      "category": "adversarial",
+      "input": "8 3\n1 2 3 4 5 6 3 4",
+      "expected_output": "11",
+      "purpose": "Breaks wrong approach #3 (ceil(sum/K)). sum=28, ceil(28/3)=10, but 10 is infeasible. With max=10: [1,2,3,4]=10, [5]=5, [6,3]=9, [4]=4 needs 4 labs. Optimal: max=11 gives [1,2,3,4]=10, [5,6]=11, [3,4]=7 in 3 labs."
+    },
+    {
+      "id": "bound_1",
+      "category": "boundary",
+      "input": "100000 2\n(all 100000 elements are 1000000000)",
+      "expected_output": "50000000000000",
+      "purpose": "Maximum N with max values and K=2. Answer = ceil(100000/2) × 10⁹ = 50000 × 10⁹ = 5 × 10¹³. Tests 64-bit integer handling and binary search range."
+    },
+    {
+      "id": "bound_2",
+      "category": "boundary",
+      "input": "5 3\n1000000000 1000000000 1000000000 1000000000 1000000000",
+      "expected_output": "2000000000",
+      "purpose": "All elements at max value 10⁹, K=3. Optimal: [10⁹,10⁹],[10⁹,10⁹],[10⁹] → max = 2×10⁹. Tests overflow boundary (answer exceeds 32-bit int)."
+    },
+    {
+      "id": "bound_3",
+      "category": "boundary",
+      "input": "10 3\n1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000",
+      "expected_output": "4000000000",
+      "purpose": "All 10 elements at 10⁹, K=3. Optimal: [4×10⁹],[4×10⁹],[2×10⁹] → max = 4×10⁹. Tests large answer values."
+    }
+  ],
+  "stress_test_config": {
+    "random_tests": 500,
+    "n_range": [1, 50],
+    "comparison": "Run brute_force_solution (enumerate all C(N-1,K-1) partitions) and reference solution (binary search + greedy) on each random input. Compare outputs. Any mismatch indicates a bug. Generate random N in [1,50], random K in [1,N], random D[i] in [1,100]."
+  },
+  "coverage_report": {
+    "edge_cases_covered": [
+      "N=1 minimum input size",
+      "K=N each element in its own group",
+      "K=1 all elements in one group",
+      "All elements identical (uniform input)",
+      "Dominant element in middle (forces suboptimal grouping)",
+      "Maximum values (10⁹) causing 64-bit overflow",
+      "Large N (100000) at constraint boundary",
+      "Two elements only (N=2)"
+    ],
+    "wrong_approaches_tested": [
+      "Wrong approach #1 (sort and distribute): tested by adv_1 — D=[10,1,1,10,1,1], K=2. Sorting gives max=21, correct answer is 12.",
+      "Wrong approach #2 (equal-count partition): tested by adv_2 — D=[3,1,1,1,1,1,1,3], K=3. Equal-count gives max=5, correct answer is 4.",
+      "Wrong approach #3 (ceil(sum/K)): tested by adv_3 — D=[1,2,3,4,5,6,3,4], K=3. ceil(28/3)=10, correct answer is 11."
+    ]
+  }
+}
