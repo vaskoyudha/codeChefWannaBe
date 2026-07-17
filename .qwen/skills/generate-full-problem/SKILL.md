@@ -1,436 +1,511 @@
 ---
 name: generate-full-problem
-description: Use when running the full end-to-end competitive programming problem generation pipeline, generating a balanced problem set, or coordinating multiple agents with gate checks and retry loops.
-dependencies:
-  - project:design-problem-blueprint
-  - project:write-problem-statement
-  - project:verify-problem-solvability
-  - project:generate-test-cases
-  - project:review-problem-quality
-  - project:write-problem-editorial
+description: Use when generating a complete competitive programming problem end-to-end - dispatches specialized subagents for each pipeline stage with review checkpoints between stages
 ---
 
-# Pipeline Orchestrator
+# Generate Full Problem (Pipeline Orchestrator)
 
-Coordinate 6 specialized agents to generate a complete, high-quality competitive programming problem. You manage data flow, enforce validation gates, handle retry logic, and assemble the final output.
+Execute the 6-agent problem generation pipeline by dispatching a fresh subagent per stage, a quality gate after each, and assembly at the end.
 
-## Overview
+**Why subagents:** Each pipeline stage requires specialized expertise. By dispatching fresh subagents with precisely crafted prompts, you ensure each stage gets focused attention without context pollution from previous stages. This also preserves your own context for coordination work.
 
-```
-You are the conductor — the agents are the musicians.
-You do NOT generate problem content yourself.
-You route inputs and outputs, check gates with evidence, and make go/no-go decisions.
-```
+**Core principle:** Fresh subagent per stage + gate verification + retry on failure = high-quality problems
 
-Every step depends on the output of the previous step. Gates allow feedback loops when validation fails. Your job is to ensure no defective output passes downstream.
+**Narration:** Between tool calls, narrate at most one short line — the ledger and tool results carry the record.
 
-## When to Use
+**Continuous execution:** Do not pause to check in with your human partner between stages. Execute all stages without stopping. The only reasons to stop are: SOLVABILITY_FAILURE you cannot resolve, ambiguity that genuinely prevents progress, or all stages complete.
 
-- Running the full end-to-end problem generation pipeline
-- Generating a balanced problem set with distribution validation
-- Coordinating multiple agents with gate checks and retry loops
-- Assembling final output from all agent stages
-
-### Mode Decision Tree
-
-```
-User request
-  ├─ "Generate a problem about X" → Single Problem Mode (default)
-  └─ "Generate a problem set / contest / training set" → Set Mode (mode: "set")
-       ├─ User specifies level? → Use level-specific distribution
-       ├─ User specifies set_size? → Use that count (default: 5)
-       └─ User specifies topics? → Pass as topic_preferences
-```
-
-**Single Problem Mode:** One problem through the full pipeline. Output: `final_problem.json`.
-
-**Set Generation Mode:** Agent 1 produces N architect specs with distribution validation. Each problem runs the full pipeline independently. Output: `final_problem_set.json` with set metadata and per-problem results. Set is valid if ≥80% of problems succeed.
-
-## Iron Law
+## The Iron Law
 
 ```
 NO PROCEEDING PAST A GATE WITHOUT EXPLICIT VERIFICATION.
 Every gate must be checked with evidence. "Looks fine" is not verification.
 ```
 
-This is non-negotiable. Gates are the pipeline's quality control. Skipping a gate or proceeding without explicit verification defeats the purpose of the entire pipeline. Every gate check must be documented with evidence from the actual output.
+## When to Use
 
-## Pipeline Flow
+**Use this skill when:**
+- User asks to generate a complete problem from scratch
+- User wants to run the full pipeline end-to-end
+- User asks for a problem set with multiple problems
+
+**Use this ESPECIALLY when:**
+- The problem concept is complex and needs specialized attention at each stage
+- You need adversarial quality review before finalizing
+- The user wants a complete package (problem + solution + tests + editorial)
+
+**Don't skip when:**
+- The problem seems simple (simple problems still need verification)
+- You're in a hurry (rushing guarantees low-quality output)
+- The user just wants "a quick problem" (quality matters regardless of speed)
+
+## The Process
 
 ```
 User Parameters
       │
       ▼
-┌─────────────────────────┐
-│ Step 1: Agent 1         │
-│ Problem Architect       │──→ architect_spec.json
-│ (project:design-problem- │
-│  blueprint)             │
-└─────────────────────────┘
+┌─────────────────────────────────┐
+│ Stage 1: Problem Architect      │
+│ Subagent: design-problem-spec   │
+│ Output: architect_spec.json     │
+└─────────────────────────────────┘
       │
       ▼
-┌─────────────────────────┐
-│ Step 2: Agent 2         │
-│ Problem Writer          │──→ problem_draft.json
-│ (project:write-problem- │
-│  statement)             │
-└─────────────────────────┘
+┌─────────────────────────────────┐
+│ Stage 2: Problem Writer         │
+│ Subagent: write-problem-stmt    │
+│ Output: problem_draft.json      │
+└─────────────────────────────────┘
       │
       ▼
-┌─────────────────────────┐
-│ Step 3: Agent 3         │
-│ Solution Engineer       │──→ solution.json
-│ (project:verify-problem-│
-│  solvability)           │
-└─────────────────────────┘
+┌─────────────────────────────────┐
+│ Stage 3: Solution Engineer      │
+│ Subagent: verify-solvability    │
+│ Output: solution.json           │
+└─────────────────────────────────┘
       │
       ▼
-┌═════════════════════════════════════════┐
-║ GATE 1: Solvability                     ║
-║ Check: solution.solvability_verdict     ║
-║   ├─ "success" → continue              ║
-║   └─ "SOLVABILITY_FAILURE"             ║
-║       → retry Agent 2 (max 2)          ║
-║       → then Agent 1 (max 1)           ║
-║       → then ABORT                     ║
-└═════════════════════════════════════════┘
+═════════════════════════════════
+║ GATE 1: Solvability Check       ║
+║   ├─ success → continue         ║
+║   └─ FAILURE → retry Stage 2    ║
+║       (max 2 retries)           ║
+║       → then Stage 1 (max 1)    
+└═════════════════════════════════┘
       │ (success)
       ▼
-┌─────────────────────────┐
-│ Step 4: Agent 4         │
-│ Test Case Generator     │──→ test_suite.json
-│ (project:generate-test- │
-│  cases)                 │
-└─────────────────────────┘
+┌─────────────────────────────────┐
+│ Stage 4: Test Case Generator    │
+│ Subagent: generate-test-cases   │
+│ Output: test_suite.json         │
+└─────────────────────────────────┘
       │
       ▼
-┌─────────────────────────┐
-│ Step 5: Agent 5         │
-│ Quality Reviewer        │──→ review_verdict.json
-│ (project:review-problem-│
-│  quality)               │
-└─────────────────────────┘
+┌─────────────────────────────────┐
+│ Stage 5: Quality Reviewer       │
+│ Subagent: review-quality        │
+│ Output: review_verdict.json     │
+└─────────────────────────────────┘
       │
       ▼
-┌═════════════════════════════════════════┐
-║ GATE 2: Quality                         ║
-║ Check: review_verdict.verdict           ║
-║   ├─ "APPROVED" → continue             ║
-║   └─ "REVISION"                        ║
-║       → route to revision_target agent  ║
-║       → max 2 rounds                   ║
-║       → then force-approve w/ warnings ║
-└═════════════════════════════════════════┘
+═════════════════════════════════
+║ GATE 2: Quality Check           
+║   ├─ APPROVED → continue        ║
+║   └─ REVISION → retry target    ║
+║       (max 2 rounds)            ║
+└═════════════════════════════════┘
       │ (APPROVED)
       ▼
-┌─────────────────────────┐
-│ Step 6: Agent 6         │
-│ Editorial Writer        │──→ editorial.json
-│ (project:write-problem- │
-│  editorial)             │
-└─────────────────────────┘
+┌─────────────────────────────────┐
+│ Stage 6: Editorial Writer       │
+│ Subagent: write-editorial       │
+│ Output: editorial.json          │
+└─────────────────────────────────┘
       │
       ▼
-┌─────────────────────────┐
-│ Step 7: Assembly        │
-│ Combine all outputs     │──→ final_problem.json
-└─────────────────────────┘
+┌─────────────────────────────────┐
+│ Stage 7: Assembly               │
+│ Combine all outputs             │
+│ Output: final_problem.json      │
+─────────────────────────────────┘
 ```
 
-### Set Generation Flow
+## Pre-Flight Check
+
+Before dispatching Stage 1, verify:
+- User parameters are clear (domain, topic, difficulty, etc.)
+- If parameters are ambiguous, ask clarifying questions NOW, not mid-pipeline
+- Check for existing ledger: `cat .superpowers/sdd/progress.md` — resume at first incomplete stage
+
+## Model Selection
+
+Use the least powerful model that can handle each stage:
+
+| Stage | Complexity | Recommended Model |
+|-------|------------|-------------------|
+| 1. Architect | High (design decisions) | Most capable |
+| 2. Writer | Medium (creative writing) | Standard |
+| 3. Solution | High (correctness proof) | Most capable |
+| 4. Test Gen | Medium (adversarial thinking) | Standard |
+| 5. Review | High (judgment calls) | Most capable |
+| 6. Editorial | Medium (pedagogical writing) | Standard |
+
+**Always specify the model explicitly when dispatching.** An omitted model inherits your session's model — often the most expensive.
+
+## Dispatching Subagents
+
+### Stage 1: Problem Architect
 
 ```
-User Parameters (mode=set, level, set_size, distribution)
-      │
-      ▼
-┌─────────────────────────────────────────┐
-│ Step 0: Agent 1 (Set Mode)              │
-│ Generates set_metadata + N architect    │──→ set_plan.json
-│ specs with distribution validation      │    (N × architect_spec.json)
-└─────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────┐
-│ For each problem in set (parallel-safe):│
-│                                         │
-│   architect_spec → Agent 2 → Agent 3    │
-│     → Gate 1 → Agent 4 → Agent 5       │
-│     → Gate 2 → Agent 6 → Assembly       │
-│                                         │
-│   Each problem is a full pipeline run.  │
-│   Problems are independent.             │
-└─────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────┐
-│ Set Assembly                            │
-│ Combine all final_problem.json files    │──→ final_problem_set.json
-│ Validate set-level distribution         │
-│ Set valid if ≥80% problems succeeded    │
-└─────────────────────────────────────────┘
+Subagent (general-purpose):
+  description: "Design problem blueprint"
+  model: [MOST_CAPABLE]
+  prompt: |
+    You are designing a competitive programming problem blueprint.
+
+    ## Your Job
+
+    Produce a structured specification (architect_spec.json) that downstream agents will consume.
+
+    ## Input Parameters
+
+    [USER_PARAMETERS]
+
+    ## Your Output
+
+    Output ONLY a valid JSON object conforming to the architect spec schema.
+    No markdown fences, no explanation text, no preamble.
+
+    ## Iron Law
+
+    NO PROBLEM DESIGN WITHOUT A CLEAR, SPECIFIC LEARNING OBJECTIVE.
+    Every problem must teach exactly ONE concept.
+
+    ## Quality Criteria
+
+    - One new concept per problem
+    - Constraints force the intended approach
+    - Prerequisites are concrete and complete
+    - Difficulty rating matches tier and Bloom level
+
+    Write your output to: architect_spec.json
+    Then report: Status (DONE/BLOCKED), file path, one-line summary.
 ```
 
-## Quick Reference
-
-| Step | Agent | Skill Dependency | Input | Output | Gate After? |
-|------|-------|-----------------|-------|--------|-------------|
-| 1 | Problem Architect | `project:design-problem-blueprint` | User params | `architect_spec.json` | No |
-| 2 | Problem Writer | `project:write-problem-statement` | `architect_spec.json` | `problem_draft.json` | No |
-| 3 | Solution Engineer | `project:verify-problem-solvability` | `problem_draft.json` | `solution.json` | **Gate 1** |
-| 4 | Test Case Generator | `project:generate-test-cases` | `problem_draft.json` + `solution.json` | `test_suite.json` | No |
-| 5 | Quality Reviewer | `project:review-problem-quality` | All 4 outputs | `review_verdict.json` | **Gate 2** |
-| 6 | Editorial Writer | `project:write-problem-editorial` | All 5 outputs | `editorial.json` | No |
-| 7 | Assembly | — | All 6 outputs | `final_problem.json` | — |
-
-### Gate Conditions
-
-| Gate | Condition to PASS | Fail Action | Max Retries |
-|------|-------------------|-------------|-------------|
-| Gate 1 | `solution.solvability_verdict == "success"` | Retry Agent 2 (×2), then Agent 1 (×1), then abort | 3 total attempts |
-| Gate 2 | `review_verdict.verdict == "APPROVED"` | Route to `revision_target` agent, re-run downstream | 2 rounds total |
-
-### Gate 1 Verification Checklist
-
-Before proceeding past Gate 1, confirm:
-- [ ] `solution.json` is valid JSON (parseable, no syntax errors)
-- [ ] `solution.solvability_verdict` field exists and equals `"success"`
-- [ ] `solution.pseudocode` is present (not empty, not placeholder)
-- [ ] `solution.correctness_argument` is present with actual proof technique
-- [ ] Show the actual field values as evidence
-
-### Gate 2 Verification Checklist
-
-Before proceeding past Gate 2, confirm:
-- [ ] `review_verdict.json` is valid JSON
-- [ ] `review_verdict.verdict` field exists and equals `"APPROVED"`
-- [ ] All 10 Shield scores are present and each ≥ 8
-- [ ] `review_verdict.sword_check` contains actual adversarial findings
-- [ ] Show the actual scores as evidence
-
-## Retry Logic
-
-### Gate 1: Solvability Retry Loop
-
-When `solvability_verdict == "SOLVABILITY_FAILURE"`:
+### Stage 2: Problem Writer
 
 ```
-gate1_retries = 0
-gate1_agent1_retries = 0
+Subagent (general-purpose):
+  description: "Write problem statement"
+  model: [STANDARD]
+  prompt: |
+    You are transforming an architect spec into a polished problem statement.
 
-while solvability_verdict == "SOLVABILITY_FAILURE":
-    if gate1_retries < 2:
-        # Retry Agent 2 (Problem Writer) with failure feedback
-        gate1_retries += 1
-        input_to_agent2 = problem_draft.json + solution.json.failure_reason
-        problem_draft.json = run Agent 2 with input_to_agent2
-        solution.json = run Agent 3 with problem_draft.json
+    ## Your Job
 
-    elif gate1_agent1_retries < 1:
-        # Escalate to Agent 1 (Problem Architect) for full redesign
-        gate1_agent1_retries += 1
-        architect_spec.json = run Agent 1 with original_params + failure_context
-        problem_draft.json = run Agent 2 with architect_spec.json
-        solution.json = run Agent 3 with problem_draft.json
+    Read architect_spec.json and produce problem_draft.json.
 
-    else:
-        # Max retries exceeded — abort with partial output
-        output partial_result with error flags
-        stop pipeline
+    ## Input
+
+    Read: architect_spec.json
+
+    ## Your Output
+
+    Output ONLY a valid JSON object conforming to the problem draft schema.
+    No markdown fences, no explanation text, no preamble.
+
+    ## Iron Law
+
+    NO PROBLEM STATEMENT WITHOUT RUNNING THE ANTI-AMBIGUITY CHECKLIST.
+    Every indexing convention, every edge case, every output format detail must be explicit.
+
+    ## Anti-Ambiguity Checklist
+
+    1. Is 1-indexed vs 0-indexed explicitly stated?
+    2. Are all variable names defined on first use?
+    3. Is the output format exact (newlines, spaces, case)?
+    4. Are edge cases (N=1, empty input, all same) mentioned or sample-tested?
+    5. Are constraints complete (no implicit bounds)?
+    6. Is the story free of cultural specificity?
+    7. Can the solver determine the answer for every sample without guessing?
+    8. Is there exactly one valid interpretation of every sentence?
+
+    Write your output to: problem_draft.json
+    Then report: Status (DONE/BLOCKED), file path, one-line summary.
 ```
 
-**Key rules:**
-- Max 2 retries to Agent 2. Each retry includes `failure_reason` from Agent 3.
-- After 2 failed Agent 2 retries, escalate to Agent 1 for full redesign.
-- Max 1 retry to Agent 1. If the redesigned problem also fails, abort.
-- Total max attempts: 4 (initial + 2 Agent 2 retries + 1 Agent 1 redesign).
-
-### Gate 2: Quality Revision Loop
-
-When `review_verdict.verdict == "REVISION"`:
+### Stage 3: Solution Engineer
 
 ```
-revision_round = review_verdict.round  # starts at 1
-max_rounds = 2
+Subagent (general-purpose):
+  description: "Verify solvability and produce solution"
+  model: [MOST_CAPABLE]
+  prompt: |
+    You are verifying the problem is solvable and producing a reference solution.
 
-while verdict == "REVISION" and revision_round < max_rounds:
-    revision_round += 1
-    target = review_verdict.revision_target
+    ## Your Job
 
-    if target == "problem_writer":
-        problem_draft.json = run Agent 2 with specific_feedback + previous_outputs
-        solution.json = run Agent 3 with problem_draft.json       # re-run downstream
-        test_suite.json = run Agent 4 with problem_draft.json + solution.json
+    Read problem_draft.json and produce solution.json with a provably correct solution.
 
-    elif target == "solution_engineer":
-        solution.json = run Agent 3 with problem_draft.json + specific_feedback
-        test_suite.json = run Agent 4 with problem_draft.json + solution.json
+    ## Input
 
-    elif target == "test_generator":
-        test_suite.json = run Agent 4 with problem_draft.json + solution.json + specific_feedback
+    Read: problem_draft.json
 
-    review_verdict.json = run Agent 5 with all outputs + round=revision_round
+    ## Your Output
 
-if verdict == "REVISION" and revision_round >= max_rounds:
-    # Force approve with warnings
-    review_verdict.verdict = "APPROVED"
-    review_verdict.warnings = review_verdict.specific_feedback
+    Output ONLY a valid JSON object conforming to the solution schema.
+    No markdown fences, no explanation text, no preamble.
+
+    ## Iron Law
+
+    NO OUTPUT WITHOUT SOLVING THE PROBLEM FIRST — IF UNSOLVABLE, OUTPUT SOLVABILITY_FAILURE.
+    You MUST write the pseudocode. Pseudocode IS the proof of solvability.
+
+    ## Critical Responsibility
+
+    If the problem has contradictory constraints, impossible conditions, or is ambiguous beyond any valid interpretation, you MUST output:
+    {
+      "solvability_verdict": "SOLVABILITY_FAILURE",
+      "failure_reason": "Specific description of what's broken"
+    }
+
+    This is the most important feedback you can give — it triggers a feedback loop back to the Problem Writer to fix the problem.
+
+    Write your output to: solution.json
+    Then report: Status (DONE/SOLVABILITY_FAILURE/BLOCKED), file path, one-line summary.
 ```
 
-**Key rules:**
-- Max 2 revision rounds total.
-- Route feedback to the specific `revision_target` agent identified by Agent 5.
-- After fixing, re-run ALL downstream agents (e.g., if problem_writer revises, re-run Agent 3 and Agent 4).
-- If round 2 still produces REVISION, force-approve with warnings.
+### Gate 1: Solvability Check
 
-## Confidence-Based Routing
+**Read solution.json and check `solvability_verdict`:**
 
-| Confidence | Action | Description |
-|------------|--------|-------------|
-| < 0.5 | **Escalate** | Route back or flag for human review. Do not proceed without intervention. |
-| 0.5–0.8 | **Flag for scrutiny** | Proceed but note for Agent 5 to pay special attention. |
-| ≥ 0.8 | **Proceed** | Continue pipeline normally. |
+**If `"success"`:**
+- Gate 1 passes. Proceed to Stage 4.
 
-**Confidence is not a free pass.** Even high-confidence outputs must pass through Gate 1 and Gate 2. Confidence supplements, but does not replace, gate checks.
+**If `"SOLVABILITY_FAILURE"`:**
+- Gate 1 fails. Enter retry loop:
+  - Retry Stage 2 (Problem Writer) with failure feedback — max 2 retries
+  - Then retry Stage 1 (Problem Architect) for full redesign — max 1 retry
+  - Then abort with partial output
 
-## Red Flags
+### Stage 4: Test Case Generator
 
-If you catch yourself thinking any of these, stop and verify:
+```
+Subagent (general-purpose):
+  description: "Generate adversarial test suite"
+  model: [STANDARD]
+  prompt: |
+    You are creating a comprehensive test suite that catches ALL common wrong approaches.
 
-- **"The pipeline is running fine"** → Check each gate explicitly. Don't assume.
-- **"The reviewer approved it"** → Verify: are all 10 Shield scores ≥ 8?
-- **"I'll trust the agent's confidence score"** → Confidence ≠ correctness. Check the actual output.
-- **"This retry is taking too long"** → Bounded retries exist for a reason. Use them.
-- **"The solution looks correct"** → "Looks" is not verification. Check `solvability_verdict`.
-- **"I'll skip Gate 1 to save time"** → Gate 1 catches unsolvable problems. Skipping wastes more time downstream.
-- **"One revision round is enough"** → If scores are still < 8, another round is needed.
+    ## Your Job
 
-## Common Mistakes
+    Read problem_draft.json and solution.json, produce test_suite.json.
 
-1. **Skipping Gate 1** — The most dangerous mistake. An unsolvable problem wastes all downstream effort (test generation, quality review, editorial). Gate 1 exists for a reason.
+    ## Input
 
-2. **Trusting confidence scores instead of checking gates** — An agent may report 0.9 confidence but still have a broken solution. Confidence is a signal, not a substitute for the solvability verdict.
+    Read: problem_draft.json, solution.json
 
-3. **Proceeding past a gate without showing evidence** — "Gate 1 passed" is not enough. You must show: `solvability_verdict = "success"`, pseudocode present, correctness argument present.
+    ## Your Output
 
-4. **Not re-running downstream agents after revision** — If Agent 2 revises the problem statement, Agent 3's solution may no longer match. Always re-run all downstream agents after any revision.
+    Output ONLY a valid JSON object conforming to the test suite schema.
+    No markdown fences, no explanation text, no preamble.
 
-5. **Force-approving too early** — Force-approve is the LAST resort after 2 full revision rounds. Never force-approve after just 1 round.
+    ## Iron Law
 
-6. **Discarding partial outputs on failure** — Always preserve intermediate outputs for debugging. Even failed pipelines produce diagnostic value.
+    NO TEST SUITE WITHOUT COVERING ALL WRONG APPROACHES FROM THE SOLUTION.
+    Every common_wrong_approach must have at least one adversarial test that breaks it.
 
-7. **Ignoring set distribution validation** — In set mode, if too many problems fail in one category, the distribution skews. Flag the warning even if ≥80% succeeded.
+    ## Test Categories
 
-## Rationalization Table
+    - basic (3-5): Verifies core mechanics
+    - edge_case (5-8): N=1, empty, all same, max values
+    - adversarial (3-5): Specifically breaks wrong approaches
+    - boundary (2-3): Constraint boundaries, overflow
+    - stress (configurable): Large random inputs for performance
 
-| Excuse | Reality |
-|--------|---------|
-| "The solution looks correct" | "Looks" is not verification. Check the `solvability_verdict` field. |
-| "One revision round is enough" | If scores are still < 8, another round is needed. |
-| "I'll skip Gate 1 to save time" | Gate 1 catches unsolvable problems. Skipping wastes more time downstream. |
-| "The agent said it's done" | Check the output format. Is it valid JSON? Does it match the schema? |
-| "The quality report looks good" | Read the actual scores. Are all 10 Shield scores ≥ 8? |
-| "This problem is obviously solvable" | Obviously ≠ provably. Check the pseudocode and correctness argument. |
-| "I'll trust the confidence score" | Confidence ≠ correctness. The gate verdict is the only authority. |
-| "The revision was minor, no need to re-run downstream" | Any change to the problem statement can invalidate the solution and tests. Re-run. |
+    ## Mindset
 
-## Error Handling
+    Every solution is guilty until proven innocent. Your tests are the interrogation.
 
-### Invalid JSON
-
-If any agent produces output that is not valid JSON:
-1. **First occurrence:** Retry the same agent with a format reminder: *"Your previous output was not valid JSON. Ensure you output ONLY a JSON object — no markdown fences, no explanation text. Re-read the output contract and try again."*
-2. **Second occurrence:** Attempt to extract JSON (look for content between `{` and `}`). If extraction fails, treat as max retries exceeded.
-
-### Escalation Protocol
-
-If the pipeline fails after max retries, output a partial result:
-
-```json
-{
-  "status": "PARTIAL_FAILURE",
-  "failed_stage": "gate_1 | gate_2 | agent_N",
-  "failure_reason": "Clear explanation of what failed and why",
-  "partial_outputs": {
-    "architect_spec": "<output or null>",
-    "problem_draft": "<output or null>",
-    "solution": "<output or null>",
-    "test_suite": "<output or null>",
-    "review_verdict": "<output or null>",
-    "editorial": "<output or null>"
-  },
-  "warnings": [
-    "Pipeline failed at [stage] after [N] retries",
-    "Reason: [specific failure reason]",
-    "Recommendation: [what to fix or try differently]"
-  ]
-}
+    Write your output to: test_suite.json
+    Then report: Status (DONE/BLOCKED), file path, test count, one-line summary.
 ```
 
-Do NOT fabricate outputs to complete the pipeline. Report the failure honestly.
+### Stage 5: Quality Reviewer
 
-## Assembly Process
+```
+Subagent (general-purpose):
+  description: "Adversarial quality review"
+  model: [MOST_CAPABLE]
+  prompt: |
+    You are performing adversarial quality review using dual Shield and Sword personas.
 
-After all 6 agents produce approved outputs, assemble `final_problem.json`:
+    ## Your Job
+
+    Read all 4 preceding outputs and produce review_verdict.json.
+
+    ## Input
+
+    Read: architect_spec.json, problem_draft.json, solution.json, test_suite.json
+
+    ## Your Output
+
+    Output ONLY a valid JSON object conforming to the review verdict schema.
+    No markdown fences, no explanation text, no preamble.
+
+    ## Iron Law
+
+    NO APPROVAL WITHOUT SCORING ALL 10 SHIELD CRITERIA — MISSING ONE IS A FAILURE.
+    If ANY Shield score is below 8, the verdict MUST be REVISION.
+
+    ## Shield Criteria (10 dimensions, score 0-10 each)
+
+    1. Learning objective clarity
+    2. Difficulty calibration accuracy
+    3. Problem statement precision
+    4. Constraint appropriateness
+    5. Sample test quality
+    6. Solution correctness
+    7. Test suite coverage
+    8. Editorial readiness
+    9. Anti-pattern freedom
+    10. Overall contest readiness
+
+    ## Sword Attacks
+
+    Try to break the problem:
+    - Ambiguity attacks (find unclear wording)
+    - Edge case attacks (find untested scenarios)
+    - Constraint attacks (find constraint violations)
+    - Solution attacks (find incorrect solutions that pass)
+
+    Write your output to: review_verdict.json
+    Then report: Status (DONE/BLOCKED), file path, verdict (APPROVED/REVISION), one-line summary.
+```
+
+### Gate 2: Quality Check
+
+**Read review_verdict.json and check `verdict`:**
+
+**If `"APPROVED"`:**
+- Gate 2 passes. Proceed to Stage 6.
+
+**If `"REVISION"`:**
+- Gate 2 fails. Enter revision loop:
+  - Read `revision_target` and `specific_feedback`
+  - Re-run the target stage with feedback
+  - Re-run all downstream stages
+  - Max 2 revision rounds
+  - If round 2 still REVISION → force-approve with warnings
+
+### Stage 6: Editorial Writer
+
+```
+Subagent (general-purpose):
+  description: "Write pedagogical editorial"
+  model: [STANDARD]
+  prompt: |
+    You are writing an editorial that makes readers feel the "aha moment."
+
+    ## Your Job
+
+    Read all 5 preceding outputs and produce editorial.json.
+
+    ## Input
+
+    Read: architect_spec.json, problem_draft.json, solution.json, test_suite.json, review_verdict.json
+
+    ## Your Output
+
+    Output ONLY a valid JSON object conforming to the editorial schema.
+    No markdown fences, no explanation text, no preamble.
+
+    ## Iron Law
+
+    NO EDITORIAL WITHOUT A BRUTE-FORCE → OPTIMAL PROGRESSION.
+    The reader must see WHY the naive approach fails and HOW the optimal approach naturally emerges.
+
+    ## Core Philosophy
+
+    A good editorial makes the reader think "of course! why didn't I see that?" — not "I could never have thought of that."
+
+    ## Required Sections
+
+    - hints: 3 progressive hints (direction → approach → key insight)
+    - brute_force_explanation: Naive approach with complexity analysis
+    - optimal_solution_walkthrough: Step-by-step derivation
+    - complexity_analysis: Time and space complexity with derivation
+    - alternative_approaches: 2-3 valid alternatives
+    - common_mistakes: 3-5 typical mistakes with explanations
+
+    Write your output to: editorial.json
+    Then report: Status (DONE/BLOCKED), file path, one-line summary.
+```
+
+### Stage 7: Assembly
+
+Combine all outputs into `final_problem.json`:
 
 ```json
 {
   "metadata": {
     "id": "prob_<domain>_<topic>_<timestamp>",
-    "domain": "<from architect_spec.domain>",
-    "topic": "<from architect_spec.topic>",
-    "subtopic": "<from architect_spec.subtopic>",
+    "domain": "<from architect_spec>",
+    "topic": "<from architect_spec>",
+    "subtopic": "<from architect_spec>",
     "difficulty": {
       "codeforces_rating": "<from architect_spec>",
       "tier": "<from architect_spec>"
     },
-    "tags": "<from architect_spec.tags>",
+    "tags": "<from architect_spec>",
     "bloom_level": "<from architect_spec>",
     "prerequisites": "<from architect_spec>",
     "generated_at": "<ISO 8601 timestamp>",
-    "pipeline_rounds": "<total Gate 2 revision rounds executed>"
+    "pipeline_rounds": "<Gate 2 revision rounds executed>"
   },
   "problem": "<problem_draft.json in full>",
   "solution": "<solution.json in full>",
   "test_suite": "<test_suite.json in full>",
   "editorial": "<editorial.json in full>",
   "quality_report": {
-    "shield_scores": "<review_verdict.shield_check — all 10 dimension scores>",
-    "sword_findings": "<review_verdict.sword_check — all findings>",
-    "pipeline_rounds": "<same as metadata.pipeline_rounds>",
-    "warnings": "<review_verdict.warnings — remaining issues if force-approved>"
+    "shield_scores": "<from review_verdict>",
+    "sword_findings": "<from review_verdict>",
+    "pipeline_rounds": "<same as metadata>",
+    "warnings": "<from review_verdict if force-approved>"
   }
 }
 ```
 
-**Assembly rules:**
-1. Metadata is derived from Agent 1's output — the architect spec defines the problem's identity.
-2. `problem`, `solution`, `test_suite`, `editorial` are the full, unmodified agent outputs.
-3. `quality_report` is extracted from Agent 5's Shield scores, Sword findings, and warnings.
-4. `pipeline_rounds` = 0 if approved first round, 1 if one revision, 2 if force-approved.
-5. `id` format: `prob_<domain>_<topic>_<ISO timestamp>` (e.g., `prob_dsa_arrays_20250117T120000Z`).
+## Handling Subagent Status
 
-## Mandatory Completion Checklist
+Subagents report one of four statuses. Handle each appropriately:
 
-Before outputting the final result, verify ALL steps:
+**DONE:** Proceed to next stage or gate check.
 
-- [ ] Step 1: Agent 1 executed, `architect_spec.json` validated against schema
-- [ ] Step 2: Agent 2 executed, `problem_draft.json` validated against schema
-- [ ] Step 3: Agent 3 executed, `solution.json` validated against schema
-- [ ] **Gate 1: `solvability_verdict == "success"` verified with evidence shown**
-- [ ] Step 4: Agent 4 executed, `test_suite.json` validated (≥ 10 test cases)
-- [ ] Step 5: Agent 5 executed, `review_verdict.json` validated against schema
-- [ ] **Gate 2: `verdict == "APPROVED"` verified with all 10 Shield scores ≥ 8 shown**
-- [ ] Step 6: Agent 6 executed, `editorial.json` validated against schema
-- [ ] Step 7: Assembly complete — all fields present in `final_problem.json`
+**DONE_WITH_CONCERNS:** Read the concerns before proceeding. If concerns are about correctness or scope, address them before continuing. If they're observations, note them and proceed.
 
-If any checkbox is unchecked, go back and complete it.
+**NEEDS_CONTEXT:** The subagent needs information that wasn't provided. Provide the missing context and re-dispatch.
 
-## Evidence-Before-Claims
+**BLOCKED:** The subagent cannot complete the stage. Assess the blocker:
+1. If it's a context problem, provide more context and re-dispatch
+2. If the stage requires more reasoning, re-dispatch with a more capable model
+3. If the input is broken, escalate to the human
 
-Every claim must be backed by evidence shown in your output:
-- If you claim a gate passes, show the actual field values.
-- If you claim an output is valid JSON, show the parse result or schema validation.
-- If you claim a retry is needed, show the specific failure condition.
-- If you claim the pipeline is complete, show all 6 agent outputs with validation status.
+**Never** ignore an escalation or force the same model to retry without changes.
 
-DO NOT state conclusions without showing the work that leads to them.
+## Durable Progress
+
+Track progress in a ledger file, not only in todos:
+
+- At skill start, check for a ledger: `cat .superpowers/sdd/progress.md`
+- When a stage completes, append one line: `Stage N: complete (output: <filename>)`
+- The ledger is your recovery map after compaction
+
+## Red Flags
+
+**Never:**
+- Skip gate verification ("looks fine" is not verification)
+- Proceed past Gate 1 without checking `solvability_verdict`
+- Proceed past Gate 2 without checking all 10 Shield scores ≥ 8
+- Trust confidence scores without evidence
+- Skip re-running downstream stages after a revision
+- Accept "close enough" on quality review
+
+**If a gate fails:**
+- Follow the retry loop exactly
+- Don't manually fix the issue (context pollution)
+- Don't skip the gate to save time
+
+## Integration
+
+**Required skills:**
+- **project:design-problem-blueprint** — Stage 1 subagent prompt
+- **project:write-problem-statement** — Stage 2 subagent prompt
+- **project:verify-problem-solvability** — Stage 3 subagent prompt
+- **project:generate-test-cases** — Stage 4 subagent prompt
+- **project:review-problem-quality** — Stage 5 subagent prompt
+- **project:write-problem-editorial** — Stage 6 subagent prompt
+
+**Alternative workflow:**
+- Run stages manually for more control over each step
