@@ -506,6 +506,183 @@ def display_problem_set(data):
     print()
 
 
+def export_to_markdown(data, output_path=None):
+    """Convert final_problem.json to a clean Markdown file."""
+    meta = data.get("metadata", {})
+    prob = data.get("problem", {})
+    solution = data.get("solution", {})
+    test_suite = data.get("test_suite", {})
+    editorial = data.get("editorial", {})
+
+    md = []
+
+    # Title and metadata
+    title = prob.get("title", "Untitled Problem")
+    md.append(f"# {title}\n")
+
+    diff = meta.get("difficulty", {})
+    tier = diff.get("tier", "unknown").upper()
+    rating = diff.get("codeforces_rating", "?")
+    topic = meta.get("topic", "?")
+    subtopic = meta.get("subtopic", "?")
+    bloom = meta.get("bloom_level", "?")
+    tags = ", ".join(meta.get("tags", []))
+
+    md.append(f"**Difficulty:** {tier} (CF {rating})  ")
+    md.append(f"**Topic:** {topic} → {subtopic}  ")
+    md.append(f"**Bloom Level:** {bloom}  ")
+    md.append(f"**Tags:** {tags}\n")
+    md.append("---\n")
+
+    # Story
+    story = prob.get("story", "")
+    if story:
+        md.append("## Story\n")
+        md.append(story)
+        md.append("")
+
+    # Problem Statement
+    statement = prob.get("statement", "")
+    if statement:
+        md.append("## Problem Statement\n")
+        md.append(statement)
+        md.append("")
+
+    # Input Format
+    input_fmt = prob.get("input_format", {})
+    if input_fmt:
+        md.append("## Input Format\n")
+        if isinstance(input_fmt, dict):
+            for key, val in input_fmt.items():
+                md.append(f"- **{key}:** {val}")
+        else:
+            md.append(str(input_fmt))
+        md.append("")
+
+    # Output Format
+    output_fmt = prob.get("output_format", "")
+    if output_fmt:
+        md.append("## Output Format\n")
+        md.append(output_fmt)
+        md.append("")
+
+    # Constraints
+    constraints = prob.get("constraints", [])
+    if constraints:
+        md.append("## Constraints\n")
+        for c in constraints:
+            md.append(f"- {c}")
+        md.append("")
+
+    # Subtasks
+    subtasks = prob.get("subtasks", [])
+    if subtasks:
+        md.append("## Subtasks\n")
+        for st in subtasks:
+            pts = st.get("points", "?")
+            desc = st.get("description", "")
+            cons = ", ".join(st.get("constraints", []))
+            md.append(f"- **[{pts} pts]** {desc} ({cons})")
+        md.append("")
+
+    # Sample Tests
+    samples = prob.get("sample_tests", [])
+    if samples:
+        md.append("## Sample Tests\n")
+        for i, sample in enumerate(samples, 1):
+            md.append(f"### Sample {i}\n")
+            inp = sample.get("input", "")
+            out = sample.get("output", "")
+            exp = sample.get("explanation", "")
+
+            md.append("**Input:**")
+            md.append("```")
+            md.append(inp)
+            md.append("```\n")
+
+            md.append("**Output:**")
+            md.append("```")
+            md.append(out)
+            md.append("```\n")
+
+            if exp:
+                md.append(f"**Explanation:** {exp}\n")
+
+    # Notes
+    notes = prob.get("notes", [])
+    if notes:
+        md.append("## Notes\n")
+        for note in notes:
+            md.append(f"- ⚠ {note}")
+        md.append("")
+
+    md.append("---\n")
+
+    # Hints (collapsible)
+    hints = editorial.get("hints", [])
+    if hints:
+        md.append("## Hints\n")
+        hint_labels = ["Direction", "Approach", "Key Insight"]
+        for i, hint in enumerate(hints):
+            label = hint_labels[i] if i < len(hint_labels) else f"Hint {i+1}"
+            md.append(f"<details>")
+            md.append(f"<summary>Hint {i+1} ({label})</summary>")
+            md.append("")
+            md.append(hint)
+            md.append("")
+            md.append("</details>\n")
+
+    md.append("---\n")
+
+    # Editorial
+    md.append("## Editorial\n")
+
+    bf = editorial.get("brute_force_explanation", "")
+    if bf:
+        md.append("### Brute Force Approach\n")
+        md.append(bf)
+        md.append("")
+
+    walkthrough = editorial.get("optimal_solution_walkthrough", "")
+    if walkthrough:
+        md.append("### Optimal Solution\n")
+        md.append(walkthrough)
+        md.append("")
+
+    complexity = editorial.get("complexity_analysis", "")
+    if complexity:
+        md.append("### Complexity Analysis\n")
+        md.append(complexity)
+        md.append("")
+
+    alts = editorial.get("alternative_approaches", [])
+    if alts:
+        md.append("### Alternative Approaches\n")
+        for alt in alts:
+            md.append(f"- {alt}")
+        md.append("")
+
+    mistakes = editorial.get("common_mistakes", [])
+    if mistakes:
+        md.append("### Common Mistakes\n")
+        for m in mistakes:
+            md.append(f"-  {m}")
+        md.append("")
+
+    # Write to file
+    content = "\n".join(md)
+
+    if output_path is None:
+        # Default: same name as input but .md extension
+        input_path = args.problem if hasattr(args, 'problem') else "problem"
+        output_path = str(Path(input_path).with_suffix('.md'))
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    return output_path
+
+
 def normalize_output(text):
     """Normalize output for comparison (strip whitespace, normalize line endings)."""
     if text is None:
@@ -673,9 +850,11 @@ Examples:
   python practice.py problem.json --hints          # Show progressive hints
   python practice.py problem.json --editorial      # Show the editorial
   python practice.py problem.json --all            # Show everything
+  python practice.py problem.json --export-md      # Export as Markdown (open in VSCode!)
   python practice.py set.json --set                # View a problem set overview
   python practice.py set.json --set --problem 3    # View problem 3 from a set
   python practice.py set.json --set --problem 3 --test sol.py  # Test solution on problem 3
+  python practice.py set.json --set --export-md    # Export entire set as Markdown
         """
     )
     
@@ -687,13 +866,100 @@ Examples:
     parser.add_argument("--json", action="store_true", help="Output raw JSON (for piping)")
     parser.add_argument("--set", "-s", action="store_true", help="Treat input as a problem set file")
     parser.add_argument("--problem-num", "-p", type=int, metavar="N", help="Select problem N from a set (1-indexed)")
+    parser.add_argument("--export-md", "-m", action="store_true", help="Export problem as Markdown file")
     
     args = parser.parse_args()
     
     # Set mode
     if args.set:
         data = load_problem_set(args.problem)
-        
+
+        # Export set to Markdown
+        if args.export_md:
+            output_path = str(Path(args.problem).with_suffix('.md'))
+            with open(output_path, 'w', encoding='utf-8') as f:
+                meta = data.get("set_metadata", {})
+                problems = data.get("problems", [])
+
+                f.write(f"# Problem Set — {meta.get('level', 'unknown').upper()}\n\n")
+                f.write(f"**Level:** {meta.get('level', 'unknown').upper()}  \n")
+                f.write(f"**Problems:** {meta.get('successful_count', 0)}/{meta.get('set_size', 0)}  \n")
+                f.write(f"**Topics:** {', '.join(meta.get('topic_groups_covered', []))}\n\n")
+                f.write("---\n\n")
+
+                for entry in problems:
+                    slot = entry.get("slot", "?")
+                    category = entry.get("category", "?")
+                    status = entry.get("status", "?")
+
+                    if status == "success" and entry.get("problem"):
+                        prob_data = entry["problem"]
+                        prob_meta = prob_data.get("metadata", {})
+                        prob = prob_data.get("problem", {})
+                        title = prob.get("title", "Untitled")
+                        rating = prob_meta.get("difficulty", {}).get("codeforces_rating", "?")
+                        topic = prob_meta.get("topic", "?")
+
+                        f.write(f"## Problem {slot}: {title}\n\n")
+                        f.write(f"**Category:** {category} | **CF Rating:** {rating} | **Topic:** {topic}\n\n")
+
+                        story = prob.get("story", "")
+                        if story:
+                            f.write("### Story\n\n")
+                            f.write(story + "\n\n")
+
+                        statement = prob.get("statement", "")
+                        if statement:
+                            f.write("### Problem Statement\n\n")
+                            f.write(statement + "\n\n")
+
+                        input_fmt = prob.get("input_format", {})
+                        if input_fmt:
+                            f.write("### Input Format\n\n")
+                            if isinstance(input_fmt, dict):
+                                for key, val in input_fmt.items():
+                                    f.write(f"- **{key}:** {val}\n")
+                            else:
+                                f.write(str(input_fmt) + "\n")
+                            f.write("\n")
+
+                        output_fmt = prob.get("output_format", "")
+                        if output_fmt:
+                            f.write("### Output Format\n\n")
+                            f.write(output_fmt + "\n\n")
+
+                        constraints = prob.get("constraints", [])
+                        if constraints:
+                            f.write("### Constraints\n\n")
+                            for c in constraints:
+                                f.write(f"- {c}\n")
+                            f.write("\n")
+
+                        samples = prob.get("sample_tests", [])
+                        if samples:
+                            f.write("### Sample Tests\n\n")
+                            for i, sample in enumerate(samples, 1):
+                                f.write(f"#### Sample {i}\n\n")
+                                f.write("**Input:**\n```\n")
+                                f.write(sample.get("input", "") + "\n```\n\n")
+                                f.write("**Output:**\n```\n")
+                                f.write(sample.get("output", "") + "\n```\n\n")
+                                exp = sample.get("explanation", "")
+                                if exp:
+                                    f.write(f"**Explanation:** {exp}\n\n")
+
+                        f.write("---\n\n")
+                    else:
+                        f.write(f"## Problem {slot}: FAILED\n\n")
+                        f.write(f"Status: {status}\n\n")
+                        reason = entry.get("failure_reason", "Unknown error")
+                        f.write(f"Reason: {reason}\n\n")
+                        f.write("---\n\n")
+
+            print(success(f"  Exported set to: {output_path}"))
+            print(dim("  Open in VSCode: code " + output_path))
+            return
+
         if args.json:
             print(json.dumps(data, indent=2))
             return
@@ -731,7 +997,15 @@ Examples:
     
     # Single problem mode
     data = load_problem(args.problem)
-    
+
+    # Export to Markdown
+    if args.export_md:
+        output_path = export_to_markdown(data)
+        print(success(f"  Exported to: {output_path}"))
+        print(dim("  Open in VSCode: code " + output_path))
+        print(dim("  Preview: Ctrl+Shift+V"))
+        return
+
     # Raw JSON mode
     if args.json:
         print(json.dumps(data, indent=2))
