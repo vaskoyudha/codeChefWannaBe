@@ -201,9 +201,9 @@ Here's a snippet of what `final_problem.json` looks like (from the binary search
     "subtopic": "binary_search_on_answer",
     "difficulty": {
       "codeforces_rating": 1400,
-      "tier": "medium",
-      "bloom_level": "apply"
+      "tier": "medium"
     },
+    "bloom_level": "apply",
     "tags": ["binary search", "greedy", "math"],
     "prerequisites": ["binary search basics", "greedy algorithms", "prefix sums"]
   },

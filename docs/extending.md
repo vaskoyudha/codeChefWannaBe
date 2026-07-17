@@ -64,7 +64,7 @@ Answer these questions before writing anything:
 Example — adding a **Difficulty Calibrator** that runs after Agent 2 (Problem Writer) and before Agent 3 (Solution Engineer):
 
 - Consumes: `architect_spec.json` + `problem_draft.json`
-- Produces: `difficulty_calibraion.json` (adjusted rating, tier, Bloom level)
+- Produces: `difficulty_calibration.json` (adjusted rating, tier, Bloom level)
 - Gate: no (it's a lightweight adjustment, not a quality check)
 - Mandatory: yes (every problem should be calibrated)
 
