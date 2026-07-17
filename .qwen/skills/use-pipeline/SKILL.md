@@ -1,5 +1,5 @@
 ---
-name: using-problem-pipeline
+name: use-pipeline
 description: You MUST use this before any problem generation work - explores user intent, selects the right pipeline skills, and enforces the Iron Law of skill-first workflow
 ---
 
@@ -54,7 +54,7 @@ Invoke this skill whenever ANY of these are true:
 User Request
 │
 ├─ "Generate a full problem (everything)"
-│   └─→ project:generate-full-problem
+│   └─→ project:generate-problem
 │       (Orchestrator — runs all 6 agents in sequence)
 │
 ├─ "I need just [specific piece]"
@@ -68,34 +68,34 @@ User Request
 
 | User Needs | Invoke Skill | Agent # | Output |
 |---|---|---|---|
-| Problem design / blueprint / spec | `project:design-problem-blueprint` | 1 — Problem Architect | `architect_spec.json` |
-| Polished problem statement | `project:write-problem-statement` | 2 — Problem Writer | `problem_draft.json` |
-| Reference solution + solvability check | `project:verify-problem-solvability` | 3 — Solution Engineer | `solution.json` |
-| Test suite (15-30 adversarial cases) | `project:generate-test-cases` | 4 — Test Case Generator | `test_suite.json` |
-| Quality review / adversarial scoring | `project:review-problem-quality` | 5 — Quality Reviewer | `review_verdict.json` |
-| Pedagogical editorial | `project:write-problem-editorial` | 6 — Editorial Writer | `editorial.json` |
+| Problem design / blueprint / spec | `project:design-blueprint` | 1 — Problem Architect | `architect_spec.json` |
+| Polished problem statement | `project:write-statement` | 2 — Problem Writer | `problem_draft.json` |
+| Reference solution + solvability check | `project:verify-solution` | 3 — Solution Engineer | `solution.json` |
+| Test suite (15-30 adversarial cases) | `project:generate-tests` | 4 — Test Case Generator | `test_suite.json` |
+| Quality review / adversarial scoring | `project:review-quality` | 5 — Quality Reviewer | `review_verdict.json` |
+| Pedagogical editorial | `project:write-editorial` | 6 — Editorial Writer | `editorial.json` |
 
 ### Step 3: Single problem or problem set?
 
 | Scope | Behavior |
 |---|---|
 | **Single problem** | Each skill runs once, produces one output |
-| **Problem set** | `project:design-problem-blueprint` handles set-level config (difficulty distribution, topic balance); downstream skills run per-problem |
+| **Problem set** | `project:design-blueprint` handles set-level config (difficulty distribution, topic balance); downstream skills run per-problem |
 
 ### Pipeline Order (when running pieces individually)
 
 ```
-1. project:design-problem-blueprint     → architect_spec.json
+1. project:design-blueprint     → architect_spec.json
                     ↓
-2. project:write-problem-statement      → problem_draft.json
+2. project:write-statement      → problem_draft.json
                     ↓
-3. project:verify-problem-solvability   → solution.json        ◄── GATE 1
+3. project:verify-solution   → solution.json        ◄── GATE 1
                     ↓
-4. project:generate-test-cases          → test_suite.json
+4. project:generate-tests          → test_suite.json
                     ↓
-5. project:review-problem-quality       → review_verdict.json  ◄── GATE 2
+5. project:review-quality       → review_verdict.json  ◄── GATE 2
                     ↓
-6. project:write-problem-editorial      → editorial.json
+6. project:write-editorial      → editorial.json
 ```
 
 **Gates cannot be skipped.** If Gate 1 (solvability) fails, fix the problem before continuing. If Gate 2 (quality) fails, iterate before writing the editorial.
@@ -104,13 +104,13 @@ User Request
 
 All pipeline skills (invoke by name using `project:skill-name` syntax):
 
-- `project:design-problem-blueprint` — Agent 1: Problem Architect. Designs the blueprint (learning objective, difficulty, prerequisites, constraints, story direction).
-- `project:write-problem-statement` — Agent 2: Problem Writer. Transforms architect spec into a polished, contest-ready problem statement.
-- `project:verify-problem-solvability` — Agent 3: Solution Engineer. Produces provably correct reference solution with complexity analysis and correctness proof. **Gate 1.**
-- `project:generate-test-cases` — Agent 4: Test Case Generator. Creates 15-30 adversarial test cases covering basic, edge, boundary, and stress scenarios.
-- `project:review-problem-quality` — Agent 5: Quality Reviewer. Dual-persona adversarial review (Shield + Sword) scoring 10 quality criteria. **Gate 2.**
-- `project:write-problem-editorial` — Agent 6: Editorial Writer. Writes pedagogical editorial with progressive hints and brute-force-to-optimal progression.
-- `project:generate-full-problem` — Pipeline Orchestrator. Coordinates all 6 agents, manages data flow, validation gates, retry logic, and final assembly.
+- `project:design-blueprint` — Agent 1: Problem Architect. Designs the blueprint (learning objective, difficulty, prerequisites, constraints, story direction).
+- `project:write-statement` — Agent 2: Problem Writer. Transforms architect spec into a polished, contest-ready problem statement.
+- `project:verify-solution` — Agent 3: Solution Engineer. Produces provably correct reference solution with complexity analysis and correctness proof. **Gate 1.**
+- `project:generate-tests` — Agent 4: Test Case Generator. Creates 15-30 adversarial test cases covering basic, edge, boundary, and stress scenarios.
+- `project:review-quality` — Agent 5: Quality Reviewer. Dual-persona adversarial review (Shield + Sword) scoring 10 quality criteria. **Gate 2.**
+- `project:write-editorial` — Agent 6: Editorial Writer. Writes pedagogical editorial with progressive hints and brute-force-to-optimal progression.
+- `project:generate-problem` — Pipeline Orchestrator. Coordinates all 6 agents, manages data flow, validation gates, retry logic, and final assembly.
 
 ## Red Flags
 
@@ -124,26 +124,26 @@ These thoughts mean STOP — you're rationalizing:
 | "I'll write the statement and tests together" | Each skill has a specific role. Run them in order. |
 | "The solvability check is overkill for this" | Gate 1 exists because unsolvable problems waste all downstream work. |
 | "I don't need a quality review, I know it's good" | Gate 2 catches what you miss. Run it. |
-| "Let me just generate test cases for this existing problem" | Existing problems still need `project:verify-problem-solvability` before testing. |
+| "Let me just generate test cases for this existing problem" | Existing problems still need `project:verify-solution` before testing. |
 | "I remember how the pipeline works" | Skills evolve. Read the current version of each skill before invoking. |
-| "The user just wants a quick problem" | Quick ≠ sloppy. Use `project:generate-full-problem` for the full ride. |
+| "The user just wants a quick problem" | Quick ≠ sloppy. Use `project:generate-problem` for the full ride. |
 | "I'll handle the editorial myself" | The editorial skill has specific pedagogical structure. Use it. |
 
 ## Common Mistakes
 
-1. **Skipping the blueprint.** The architect spec (`architect_spec.json`) is the foundation. Every downstream agent depends on it. Always start with `project:design-problem-blueprint` unless using the orchestrator.
+1. **Skipping the blueprint.** The architect spec (`architect_spec.json`) is the foundation. Every downstream agent depends on it. Always start with `project:design-blueprint` unless using the orchestrator.
 
 2. **Running skills out of order.** The pipeline has dependencies. The Problem Writer needs the architect spec. The Solution Engineer needs the problem draft. Tests need the solution. Reviews need everything. Editorials come last.
 
-3. **Ignoring gate failures.** When `project:verify-problem-solvability` returns `SOLVABILITY_FAILURE`, do NOT continue. Fix the problem at the blueprint or statement level, then re-verify.
+3. **Ignoring gate failures.** When `project:verify-solution` returns `SOLVABILITY_FAILURE`, do NOT continue. Fix the problem at the blueprint or statement level, then re-verify.
 
-4. **Using the orchestrator for single pieces.** If the user only needs test cases, don't run `project:generate-full-problem`. Use `project:generate-test-cases` directly (after ensuring prerequisites exist).
+4. **Using the orchestrator for single pieces.** If the user only needs test cases, don't run `project:generate-problem`. Use `project:generate-tests` directly (after ensuring prerequisites exist).
 
 5. **Not reading skill instructions before invoking.** Each skill has detailed workflows, output schemas, and constraints. Read the skill — don't guess what it does.
 
 6. **Mixing manual work with pipeline output.** If you're in the pipeline, let the pipeline produce the artifacts. Don't hand-edit `architect_spec.json` and then pass it downstream — regenerate it through the skill.
 
-7. **Forgetting problem set mode.** When generating multiple problems, `project:design-problem-blueprint` handles set-level configuration. Don't manually design each problem independently — that breaks balance guarantees.
+7. **Forgetting problem set mode.** When generating multiple problems, `project:design-blueprint` handles set-level configuration. Don't manually design each problem independently — that breaks balance guarantees.
 
 ## User Instructions
 

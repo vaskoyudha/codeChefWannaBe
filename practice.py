@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CodeChefWannaBe — Practice Tool
+Agent Skills Problem Gen — Practice Tool
 Reads final_problem.json files and lets you solve them interactively.
 
 Usage:
@@ -840,7 +840,7 @@ def test_solution(data, solution_path):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="CodeChefWannaBe Practice Tool — Solve AI-generated programming problems",
+        description="Agent Skills Problem Gen Practice Tool — Solve AI-generated programming problems",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

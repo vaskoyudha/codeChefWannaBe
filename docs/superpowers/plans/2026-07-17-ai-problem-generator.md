@@ -1,4 +1,4 @@
-# CodeChefWannaBe — AI Problem Generator Prompt Library Implementation Plan
+# Agent Skills Problem Gen — AI Problem Generator Prompt Library Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -23,7 +23,7 @@
 ## File Structure
 
 ```
-codeChefWannaBe/
+agent-skills-problem-gen/
 ├── README.md
 ├── prompts/
 │   ├── 01_problem_architect.md

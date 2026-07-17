@@ -1,5 +1,5 @@
 ---
-name: generate-full-problem
+name: generate-problem
 description: Use when generating a complete competitive programming problem end-to-end - dispatches specialized subagents for each pipeline stage with review checkpoints between stages
 ---
 
@@ -77,7 +77,7 @@ User Parameters
       ▼
 ┌─────────────────────────────────┐
 │ Stage 4: Test Case Generator    │
-│ Subagent: generate-test-cases   │
+│ Subagent: generate-tests   │
 │ Output: test_suite.json         │
 └─────────────────────────────────┘
       │
@@ -500,12 +500,12 @@ Track progress in a ledger file, not only in todos:
 ## Integration
 
 **Required skills:**
-- **project:design-problem-blueprint** — Stage 1 subagent prompt
-- **project:write-problem-statement** — Stage 2 subagent prompt
-- **project:verify-problem-solvability** — Stage 3 subagent prompt
-- **project:generate-test-cases** — Stage 4 subagent prompt
-- **project:review-problem-quality** — Stage 5 subagent prompt
-- **project:write-problem-editorial** — Stage 6 subagent prompt
+- **project:design-blueprint** — Stage 1 subagent prompt
+- **project:write-statement** — Stage 2 subagent prompt
+- **project:verify-solution** — Stage 3 subagent prompt
+- **project:generate-tests** — Stage 4 subagent prompt
+- **project:review-quality** — Stage 5 subagent prompt
+- **project:write-editorial** — Stage 6 subagent prompt
 
 **Alternative workflow:**
 - Run stages manually for more control over each step

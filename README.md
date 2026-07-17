@@ -1,14 +1,14 @@
-# CodeChefWannaBe
+# Agent Skills Problem Gen
 
 **Generate contest-quality competitive programming problems — complete with verified solutions, comprehensive test suites, and pedagogical editorials — using a 6-agent AI pipeline.**
 
-CodeChefWannaBe is a prompt library that turns a single idea ("binary search on answer, rating 1400") into a complete, ready-to-publish problem package. Every output is structured JSON, reviewed by an adversarial quality gate, and grounded in DSA pedagogy.
+Agent Skills Problem Gen is a prompt library that turns a single idea ("binary search on answer, rating 1400") into a complete, ready-to-publish problem package. Every output is structured JSON, reviewed by an adversarial quality gate, and grounded in DSA pedagogy.
 
 ---
 
 ## Why This Exists
 
-Most AI-generated programming problems stop at the statement. CodeChefWannaBe goes further:
+Most AI-generated programming problems stop at the statement. Agent Skills Problem Gen goes further:
 
 - **Problem statement** — contest-ready, anti-ambiguity checked
 - **Verified solution** — with formal correctness proof and complexity analysis
@@ -281,7 +281,7 @@ The current prompts focus on DSA/competitive programming. To add a new domain (e
 
 MIT License — see [LICENSE](LICENSE) for details.
 
-Copyright (c) 2026 CodeChefWannaBe Contributors
+Copyright (c) 2026 Agent Skills Problem Gen Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

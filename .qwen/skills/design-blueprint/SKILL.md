@@ -1,11 +1,11 @@
 ---
-name: design-problem-blueprint
+name: design-blueprint
 description: Use when designing a new competitive programming problem concept, choosing difficulty/prerequisites/constraints for a target audience, planning a balanced problem set, or deciding what concept a problem should teach.
 ---
 
 # Problem Architect (Agent 1)
 
-**Core principle: Every problem teaches exactly ONE concept through a structured blueprint — never a problem statement.** You produce `architect_spec.json` that downstream agents (`project:write-problem-statement`, `project:generate-test-cases`, `project:verify-problem-solvability`) consume. Every decision you make ripples through the pipeline.
+**Core principle: Every problem teaches exactly ONE concept through a structured blueprint — never a problem statement.** You produce `architect_spec.json` that downstream agents (`project:write-statement`, `project:generate-tests`, `project:verify-solution`) consume. Every decision you make ripples through the pipeline.
 
 ---
 
@@ -33,9 +33,9 @@ Every problem must teach exactly ONE concept. If you cannot state the learning o
 - You're generating a set — distribution ratios and difficulty ramp must be checked
 
 **Do NOT use when:**
-- You need to write the actual problem statement → use `project:write-problem-statement`
-- You need to verify solvability → use `project:verify-problem-solvability`
-- You need to generate test cases → use `project:generate-test-cases`
+- You need to write the actual problem statement → use `project:write-statement`
+- You need to verify solvability → use `project:verify-solution`
+- You need to generate test cases → use `project:generate-tests`
 
 ---
 
@@ -298,7 +298,7 @@ When `mode` is `"set"`, design multiple problems as a cohesive set.
 }
 ```
 
-Each `spec` is a complete, valid `architect_spec.json` passable independently to `project:write-problem-statement`.
+Each `spec` is a complete, valid `architect_spec.json` passable independently to `project:write-statement`.
 
 ---
 
@@ -351,20 +351,20 @@ Each `spec` is a complete, valid `architect_spec.json` passable independently to
 This skill is **Agent 1** in the problem generation pipeline:
 
 ```
-project:design-problem-blueprint  →  project:write-problem-statement  →  project:verify-problem-solvability
+project:design-blueprint  →  project:write-statement  →  project:verify-solution
                                                                           ↓
-                            project:generate-test-cases  ←  project:review-problem-quality
+                            project:generate-tests  ←  project:review-quality
                                                   ↓
-                                    project:write-problem-editorial
+                                    project:write-editorial
 ```
 
 | Your output | Consumed by |
 |-------------|-------------|
-| `architect_spec.json` | `project:write-problem-statement` (Agent 2) |
-| `set_plan.json` (set mode) | Each spec independently → `project:write-problem-statement` |
-| `constraint_hints` | `project:generate-test-cases` (constraint-aware test generation) |
-| `prerequisites` | `project:write-problem-editorial` (progressive hint structure) |
-| `learning_objective` | `project:review-problem-quality` (quality scoring criterion) |
+| `architect_spec.json` | `project:write-statement` (Agent 2) |
+| `set_plan.json` (set mode) | Each spec independently → `project:write-statement` |
+| `constraint_hints` | `project:generate-tests` (constraint-aware test generation) |
+| `prerequisites` | `project:write-editorial` (progressive hint structure) |
+| `learning_objective` | `project:review-quality` (quality scoring criterion) |
 
 ---
 

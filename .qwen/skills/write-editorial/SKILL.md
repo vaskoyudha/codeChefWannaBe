@@ -1,5 +1,5 @@
 ---
-name: write-problem-editorial
+name: write-editorial
 description: Use when writing the editorial for an approved competitive programming problem — produces progressive hints, brute-force → optimal progression, step-by-step walkthrough, complexity analysis, alternative approaches, and common mistakes.
 ---
 

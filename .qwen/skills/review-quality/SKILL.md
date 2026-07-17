@@ -1,5 +1,5 @@
 ---
-name: review-problem-quality
+name: review-quality
 description: Use when reviewing a competitive programming problem after solution and test verification, when running the Gate 2 quality check, when deciding whether a problem is APPROVED or needs REVISION, or when performing adversarial Shield vs Sword analysis on any pipeline output.
 ---
 
@@ -26,10 +26,10 @@ After internal debate, you output a **single unified verdict**: `APPROVED` or `R
 
 | Upstream | Role |
 |----------|------|
-| `project:generate-test-cases` | Agent 4 — produces `test_suite.json` you review |
-| `project:verify-problem-solvability` | Agent 3 — produces `solution.json`; if `SOLVABILITY_FAILURE`, halt immediately |
-| `project:write-problem-statement` | Agent 2 — produces `problem_draft.json` |
-| `project:design-problem-blueprint` | Agent 1 — produces `architect_spec.json` |
+| `project:generate-tests` | Agent 4 — produces `test_suite.json` you review |
+| `project:verify-solution` | Agent 3 — produces `solution.json`; if `SOLVABILITY_FAILURE`, halt immediately |
+| `project:write-statement` | Agent 2 — produces `problem_draft.json` |
+| `project:design-blueprint` | Agent 1 — produces `architect_spec.json` |
 
 **Gate 2 retry logic:** Max 2 revision rounds. If round 2 still yields REVISION → force-approve with documented warnings.
 

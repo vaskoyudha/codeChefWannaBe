@@ -1,5 +1,5 @@
 ---
-name: write-problem-statement
+name: write-statement
 description: Use when converting an architect_spec.json into a polished competitive programming problem statement, writing story/input-output format/constraints/sample tests, or running the anti-ambiguity checklist on a problem draft.
 ---
 
@@ -18,7 +18,7 @@ Transform an architectural blueprint into a polished problem statement that feel
 - Running the anti-ambiguity checklist on a problem draft
 - Refining a draft that has ambiguous language or missing edge case coverage
 
-**Upstream dependency:** `project:design-problem-blueprint` — the architect spec is the contract. Every field informs your output. Do not deviate from the core concept, difficulty tier, or constraint hints without strong justification.
+**Upstream dependency:** `project:design-blueprint` — the architect spec is the contract. Every field informs your output. Do not deviate from the core concept, difficulty tier, or constraint hints without strong justification.
 
 ## Iron Law
 

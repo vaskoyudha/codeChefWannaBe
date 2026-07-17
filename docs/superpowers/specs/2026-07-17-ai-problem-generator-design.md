@@ -1,10 +1,10 @@
-# CodeChefWannaBe — AI Agent System Prompts for Programming Problem Generation
+# Agent Skills Problem Gen — AI Agent System Prompts for Programming Problem Generation
 
 **Design Spec — July 17, 2026**
 
 ## Overview
 
-CodeChefWannaBe is an open-source prompt library containing carefully engineered system prompts for a multi-agent AI pipeline that generates high-quality programming problems. The system covers three domains: language learning, data structures & algorithms (DSA), and competitive programming.
+Agent Skills Problem Gen is an open-source prompt library containing carefully engineered system prompts for a multi-agent AI pipeline that generates high-quality programming problems. The system covers three domains: language learning, data structures & algorithms (DSA), and competitive programming.
 
 **Product:** A portable prompt library (markdown files) with JSON schemas, example pipeline traces, and an embedded knowledge base. No application code — the prompts can be plugged into any LLM (GPT-4, Claude, Gemini, etc.).
 
@@ -422,7 +422,7 @@ Every agent includes a `confidence` field (0.0-1.0):
 ## File Structure
 
 ```
-codeChefWannaBe/
+agent-skills-problem-gen/
 ├── README.md                          # Project overview, quick start
 ├── prompts/                           # The core prompt library
 │   ├── 01_problem_architect.md        # Agent 1 system prompt

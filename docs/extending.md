@@ -1,8 +1,8 @@
-# Extending CodeChefWannaBe
+# Extending Agent Skills Problem Gen
 
 > **Audience:** Contributors who want to add agents, support new domains, contribute example traces, or evolve the schemas.
 
-This guide explains the extension points in the CodeChefWannaBe pipeline and walks through each one with concrete steps. Read the [README](../README.md) and [Usage Guide](usage_guide.md) first so you understand the baseline 6-agent pipeline.
+This guide explains the extension points in the Agent Skills Problem Gen pipeline and walks through each one with concrete steps. Read the [README](../README.md) and [Usage Guide](usage_guide.md) first so you understand the baseline 6-agent pipeline.
 
 ---
 

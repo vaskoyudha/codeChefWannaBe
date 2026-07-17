@@ -1,5 +1,5 @@
 ---
-name: verify-problem-solvability
+name: verify-solution
 description: Use when a problem draft needs solvability verification before test generation, when you need a reference solution with correctness proof, or when checking whether a problem is broken. Gate 1 of the pipeline — outputs SOLVABILITY_FAILURE if the problem cannot be solved.
 ---
 
@@ -41,7 +41,7 @@ Invoke this skill when ANY of these are true:
 
 ## Input
 
-`problem_draft.json` from `project:write-problem-statement` (Agent 2). Optionally `architect_spec.json` from `project:design-problem-blueprint` (Agent 1) for reference.
+`problem_draft.json` from `project:write-statement` (Agent 2). Optionally `architect_spec.json` from `project:design-blueprint` (Agent 1) for reference.
 
 | Field | Type | What It Tells You |
 |---|---|---|
@@ -80,10 +80,10 @@ This skill is **Gate 1** of the pipeline. When `solvability_verdict == "SOLVABIL
 ```
 SOLVABILITY_FAILURE
     │
-    ├─→ Retry 1-2: Back to project:write-problem-statement (Agent 2)
+    ├─→ Retry 1-2: Back to project:write-statement (Agent 2)
     │   with failure_reason as feedback for revision
     │
-    ├─→ Retry 3: Back to project:design-problem-blueprint (Agent 1)
+    ├─→ Retry 3: Back to project:design-blueprint (Agent 1)
     │   for full redesign
     │
     └─→ Abort: Problem cannot be fixed
@@ -234,11 +234,11 @@ These thoughts mean STOP — you're rationalizing:
 
 | Direction | Skill | Relationship |
 |---|---|---|
-| **Upstream** | `project:write-problem-statement` | Produces the `problem_draft.json` you solve |
-| **Upstream** | `project:design-problem-blueprint` | Produces the `architect_spec.json` for reference |
-| **Downstream** | `project:generate-test-cases` | Uses your wrong approaches and brute force to design adversarial tests |
-| **Downstream** | `project:write-problem-editorial` | Uses your solution approach and correctness proof for the editorial |
-| **Orchestrator** | `project:generate-full-problem` | Coordinates the full pipeline including this gate |
+| **Upstream** | `project:write-statement` | Produces the `problem_draft.json` you solve |
+| **Upstream** | `project:design-blueprint` | Produces the `architect_spec.json` for reference |
+| **Downstream** | `project:generate-tests` | Uses your wrong approaches and brute force to design adversarial tests |
+| **Downstream** | `project:write-editorial` | Uses your solution approach and correctness proof for the editorial |
+| **Orchestrator** | `project:generate-problem` | Coordinates the full pipeline including this gate |
 
 ## Prompt File
 

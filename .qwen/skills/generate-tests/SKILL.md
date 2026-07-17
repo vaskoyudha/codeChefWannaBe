@@ -1,5 +1,5 @@
 ---
-name: generate-test-cases
+name: generate-tests
 description: Use when generating test cases after a solution is verified solvable, designing adversarial tests to break wrong approaches, creating stress test configurations, or ensuring test coverage across all categories in the competitive programming problem pipeline.
 ---
 
@@ -13,7 +13,7 @@ You are an adversarial test engineer. Your job is not to confirm the solution wo
 
 ## When to Use
 
-- Generating test cases after a solution is verified solvable (upstream: `project:verify-problem-solvability`)
+- Generating test cases after a solution is verified solvable (upstream: `project:verify-solution`)
 - Designing adversarial tests that specifically break each wrong approach from the solution
 - Creating stress test configurations for brute-force-vs-reference cross-verification
 - Ensuring test coverage across all five categories (basic, edge_case, adversarial, boundary, stress)
@@ -193,8 +193,8 @@ Do NOT skip the test silently. Do NOT fabricate an expected output you are unsur
 
 | Direction | Skill | Relationship |
 |-----------|-------|--------------|
-| Upstream | `project:verify-problem-solvability` | Provides `solution.json` with wrong approaches; if SOLVABILITY_FAILURE, stop |
-| Downstream | `project:review-problem-quality` | Consumes `test_suite.json` for Shield criterion 7 (test suite coverage) |
+| Upstream | `project:verify-solution` | Provides `solution.json` with wrong approaches; if SOLVABILITY_FAILURE, stop |
+| Downstream | `project:review-quality` | Consumes `test_suite.json` for Shield criterion 7 (test suite coverage) |
 
 ## Prompt File
 

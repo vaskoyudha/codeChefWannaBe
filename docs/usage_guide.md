@@ -1,6 +1,6 @@
 # Usage Guide
 
-How to use the CodeChefWannaBe prompts to generate competitive programming problems with any LLM.
+How to use the Agent Skills Problem Gen prompts to generate competitive programming problems with any LLM.
 
 ---
 
