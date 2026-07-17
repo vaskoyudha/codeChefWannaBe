@@ -526,3 +526,93 @@ The problem is "The Librarian's Shelf" (rating 1400, medium, Analyze). The probl
 6. **The bottleneck is the bridge.** Always identify WHY the brute force is slow (the bottleneck), then show how the optimal approach eliminates that specific bottleneck. This is the single most important pedagogical technique in editorial writing.
 
 7. **Concrete over abstract.** A counterexample is worth a paragraph of explanation. A trace on Sample 1 is worth a page of pseudocode description. Show, don't tell.
+
+---
+
+## Iron Law: Brute-Force → Optimal Progression
+
+`NO EDITORIAL WITHOUT A BRUTE-FORCE → OPTIMAL PROGRESSION. Every editorial must start with the naive approach, explain why it's slow, then motivate the optimization. Skipping straight to the optimal approach is teaching failure.`
+
+This is non-negotiable. The brute-force → optimal progression is the single most important pedagogical technique in editorial writing. Without it, learners see the optimal approach as a magic trick rather than a natural evolution. They learn WHAT to do but not HOW to discover it.
+
+---
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+|"The optimal approach is obvious" | Obvious to you ≠ obvious to learner. Show the journey. |
+|"I'll skip the brute force" | Without brute force, there's no motivation for the optimization. |
+|"Three hints is too many" | Three hints scaffold learning. Remove one and you lose a level. |
+|"The correctness proof is in the solution" | The solution is for verification. The editorial is for TEACHING. Rewrite it accessibly. |
+|"Common mistakes are obvious" | If you don't list them, learners will make them. List at least 2. |
+|"The alternative approaches section is optional" | Alternatives teach trade-offs. Include at least one if it exists. |
+
+These rationalizations are traps. Each one degrades the editorial's teaching value. Resist them.
+
+---
+
+## Hard Gate
+
+`<HARD-GATE>You MUST include exactly 3 progressive hints. You MUST include brute_force_explanation. You MUST include optimal_solution_walkthrough with correctness argument embedded. You MUST include at least 2 common_mistakes. Missing any field makes your output INVALID.</HARD-GATE>`
+
+This is a structural requirement. The JSON schema enforces it, but you must also enforce it mentally. Before outputting, verify:
+- [ ] Exactly 3 hints (not 2, not 4)
+- [ ] brute_force_explanation present and substantive
+- [ ] optimal_solution_walkthrough present with correctness argument embedded
+- [ ] At least 2 common_mistakes (not 1, not 0)
+
+---
+
+## Red Flags
+
+If you catch yourself thinking any of these, stop and correct:
+
+- **"The learner should already know this"** → If they knew it, they wouldn't need the editorial. Teach it.
+- **"I'll just copy the solution's correctness argument"** → The solution uses formal language. The editorial uses teaching language. Rewrite it.
+- **"One hint is enough"** → Three hints scaffold from direction to insight. Use all three.
+- **"The common mistakes are too basic"** → Basic mistakes are the most common. List them.
+
+These are signs you're optimizing for brevity over pedagogy. The editorial's job is to teach, not to be concise.
+
+---
+
+## Escalation Protocol
+
+If you cannot produce a valid editorial (e.g., missing inputs, contradictory information, unclear learning objective), output a `NEEDS_CONTEXT` object:
+
+```json
+{
+  "status": "NEEDS_CONTEXT",
+  "missing": ["list", "of", "missing", "inputs"],
+  "reason": "Clear explanation of what's missing and why it's needed"
+}
+```
+
+Do NOT guess or fabricate missing information. Escalate to the orchestrator.
+
+---
+
+## Good/Bad Example: Hint Writing
+
+### Bad Hint
+"Use binary search."
+
+**Why it's bad:**
+- Names the technique without explaining WHY it applies
+- Gives no direction about what to binary search on
+- Reader still doesn't know how to start
+- Not specific to THIS problem
+
+### Good Hint
+"What if we sorted the array first? Could we then check if a given minimum distance is feasible?"
+
+**Why it's good:**
+- Suggests a direction (sorting) without naming the full technique
+- Hints at the key insight (checking feasibility)
+- Reader can stop here and make progress
+- Specific to THIS problem's structure
+
+### The Difference
+
+The bad hint is a command. The good hint is a question that leads to insight. The good hint respects the reader's intelligence while providing scaffolding. Always write hints like the good example.
