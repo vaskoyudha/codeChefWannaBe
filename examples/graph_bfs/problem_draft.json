@@ -1,0 +1,56 @@
+{
+  "title": "Message Relay",
+  "story": "A computer network consists of N computers numbered 1 through N. These computers are connected by M bidirectional communication links. Each link directly connects two computers, and data can flow in either direction through a link. When a computer receives a message, it can forward the message to any computer it is directly connected to. Each forwarding step (traversing one link) counts as one hop. You need to determine the minimum number of hops required to send a message from computer 1 to computer N.",
+  "statement": "You are given an undirected unweighted graph with N nodes (computers) and M edges (communication links). The graph may contain self-loops (an edge from a node to itself) and parallel edges (multiple edges between the same pair of nodes). Find the shortest path from node 1 to node N, measured as the minimum number of edges that must be traversed.\n\nIf node N is not reachable from node 1, output -1.\n\nNote: The shortest path length is the number of edges on the path, not the number of nodes. A path from node 1 to node N that goes through nodes 1 → v₁ → v₂ → ... → N has length equal to the number of edges traversed.",
+  "input_format": {
+    "line_1": "Two space-separated integers N and M — the number of computers (nodes) and the number of communication links (edges).",
+    "next_m_lines": "Each of the next M lines contains two space-separated integers Uᵢ and Vᵢ — the endpoints of the i-th edge. Edges are bidirectional. Self-loops (Uᵢ = Vᵢ) and parallel edges may exist."
+  },
+  "output_format": "Print a single integer — the minimum number of hops (edges) to reach node N from node 1. If node N is not reachable from node 1, print -1.",
+  "constraints": [
+    "1 ≤ N ≤ 2 × 10⁵",
+    "0 ≤ M ≤ 2 × 10⁵",
+    "1 ≤ Uᵢ, Vᵢ ≤ N",
+    "Time limit: 2 seconds",
+    "Memory limit: 256 MB"
+  ],
+  "sample_tests": [
+    {
+      "input": "6 6\n1 2\n1 3\n2 4\n3 5\n4 6\n5 6",
+      "output": "3",
+      "explanation": "The graph has 6 nodes and 6 edges. BFS from node 1: dist[1]=0. Neighbors of 1 are {2, 3}, so dist[2]=1, dist[3]=1. Neighbors of 2 are {1, 4}, so dist[4]=2. Neighbors of 3 are {1, 5}, so dist[5]=2. Neighbors of 4 are {2, 6}, so dist[6]=3. The shortest path from 1 to 6 has 3 hops. Two optimal paths exist: 1 → 2 → 4 → 6 and 1 → 3 → 5 → 6."
+    },
+    {
+      "input": "4 3\n1 2\n2 3\n3 4",
+      "output": "3",
+      "explanation": "The graph is a simple chain: 1 — 2 — 3 — 4. The only path from 1 to 4 is 1 → 2 → 3 → 4, which has 3 hops."
+    },
+    {
+      "input": "4 2\n1 2\n3 4",
+      "output": "-1",
+      "explanation": "The graph has two disconnected components: {1, 2} and {3, 4}. Node 4 is not reachable from node 1, so the output is -1."
+    }
+  ],
+  "notes": [
+    "The graph may contain self-loops (Uᵢ = Vᵢ) and parallel edges (multiple edges between the same pair). Your solution should handle these correctly without infinite loops or incorrect distances.",
+    "When N = 1, the source and destination are the same node (node 1). The answer is 0 since no hops are needed."
+  ],
+  "subtasks": [
+    {
+      "points": 30,
+      "constraints": [
+        "1 ≤ N ≤ 1000",
+        "0 ≤ M ≤ 1000"
+      ],
+      "description": "Small constraints — even O(N²) or O(N × M) approaches may pass."
+    },
+    {
+      "points": 70,
+      "constraints": [
+        "1 ≤ N ≤ 2 × 10⁵",
+        "0 ≤ M ≤ 2 × 10⁵"
+      ],
+      "description": "Full constraints — requires O(N + M) BFS."
+    }
+  ]
+}

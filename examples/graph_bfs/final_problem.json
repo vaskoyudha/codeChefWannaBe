@@ -1,0 +1,200 @@
+{
+  "metadata": {
+    "id": "GBFS-001",
+    "domain": "dsa",
+    "topic": "graph",
+    "subtopic": "graph bfs",
+    "difficulty": {
+      "codeforces_rating": 1200,
+      "tier": "easy"
+    },
+    "tags": [
+      "graph",
+      "bfs",
+      "shortest path",
+      "unweighted graph",
+      "queues"
+    ],
+    "bloom_level": "apply",
+    "prerequisites": [
+      "graph representation (adjacency list)",
+      "queue data structure and FIFO operations",
+      "basic traversal algorithms (DFS, BFS)",
+      "understanding of O(N + M) complexity",
+      "visited arrays and cycle detection"
+    ],
+    "generated_at": "2026-07-17T00:00:00Z",
+    "pipeline_rounds": 1
+  },
+  "problem": {
+    "title": "Message Relay",
+    "story": "A computer network consists of N computers numbered 1 through N. These computers are connected by M bidirectional communication links. Each link directly connects two computers, and data can flow in either direction through a link. When a computer receives a message, it can forward the message to any computer it is directly connected to. Each forwarding step (traversing one link) counts as one hop. You need to determine the minimum number of hops required to send a message from computer 1 to computer N.",
+    "statement": "You are given an undirected unweighted graph with N nodes (computers) and M edges (communication links). The graph may contain self-loops (an edge from a node to itself) and parallel edges (multiple edges between the same pair of nodes). Find the shortest path from node 1 to node N, measured as the minimum number of edges that must be traversed.\n\nIf node N is not reachable from node 1, output -1.\n\nNote: The shortest path length is the number of edges on the path, not the number of nodes.",
+    "input_format": {
+      "line_1": "Two space-separated integers N and M — the number of computers (nodes) and the number of communication links (edges).",
+      "next_m_lines": "Each of the next M lines contains two space-separated integers Uᵢ and Vᵢ — the endpoints of the i-th edge. Edges are bidirectional. Self-loops (Uᵢ = Vᵢ) and parallel edges may exist."
+    },
+    "output_format": "Print a single integer — the minimum number of hops (edges) to reach node N from node 1. If node N is not reachable from node 1, print -1.",
+    "constraints": [
+      "1 ≤ N ≤ 2 × 10⁵",
+      "0 ≤ M ≤ 2 × 10⁵",
+      "1 ≤ Uᵢ, Vᵢ ≤ N",
+      "Time limit: 2 seconds",
+      "Memory limit: 256 MB"
+    ],
+    "sample_tests": [
+      {
+        "input": "6 6\n1 2\n1 3\n2 4\n3 5\n4 6\n5 6",
+        "output": "3",
+        "explanation": "BFS from node 1: dist[1]=0, dist[2]=1, dist[3]=1, dist[4]=2, dist[5]=2, dist[6]=3. The shortest path from 1 to 6 has 3 hops. Two optimal paths exist: 1 → 2 → 4 → 6 and 1 → 3 → 5 → 6."
+      },
+      {
+        "input": "4 3\n1 2\n2 3\n3 4",
+        "output": "3",
+        "explanation": "The graph is a simple chain: 1 — 2 — 3 — 4. The only path from 1 to 4 is 1 → 2 → 3 → 4, which has 3 hops."
+      },
+      {
+        "input": "4 2\n1 2\n3 4",
+        "output": "-1",
+        "explanation": "The graph has two disconnected components: {1, 2} and {3, 4}. Node 4 is not reachable from node 1, so the output is -1."
+      }
+    ],
+    "notes": [
+      "The graph may contain self-loops (Uᵢ = Vᵢ) and parallel edges (multiple edges between the same pair). Your solution should handle these correctly without infinite loops or incorrect distances.",
+      "When N = 1, the source and destination are the same node (node 1). The answer is 0 since no hops are needed."
+    ],
+    "subtasks": [
+      {
+        "points": 30,
+        "constraints": [
+          "1 ≤ N ≤ 1000",
+          "0 ≤ M ≤ 1000"
+        ],
+        "description": "Small constraints — even O(N²) or O(N × M) approaches may pass."
+      },
+      {
+        "points": 70,
+        "constraints": [
+          "1 ≤ N ≤ 2 × 10⁵",
+          "0 ≤ M ≤ 2 × 10⁵"
+        ],
+        "description": "Full constraints — requires O(N + M) BFS."
+      }
+    ]
+  },
+  "solution": {
+    "approach": "Breadth-First Search (BFS) from node 1. BFS explores nodes level by level, where level k contains all nodes at distance exactly k from the source. Since BFS discovers nodes in order of increasing distance, the first time we reach node N, we have found the shortest path. Self-loops and parallel edges are handled naturally by the visited check.",
+    "pseudocode": [
+      "function solve():",
+      "    read N, M",
+      "    adj = array of N+1 empty lists",
+      "    for i = 1 to M:",
+      "        read u, v",
+      "        adj[u].append(v)",
+      "        adj[v].append(u)",
+      "",
+      "    dist = array of N+1, all initialized to -1",
+      "    dist[1] = 0",
+      "    queue = [1]",
+      "",
+      "    while queue is not empty:",
+      "        curr = queue.dequeue()",
+      "        if curr == N:",
+      "            break",
+      "        for each neighbor in adj[curr]:",
+      "            if dist[neighbor] == -1:",
+      "                dist[neighbor] = dist[curr] + 1",
+      "                queue.enqueue(neighbor)",
+      "",
+      "    print dist[N]"
+    ],
+    "time_complexity": "O(N + M) — Each node is enqueued at most once (O(N)). Each edge is examined at most twice (O(M)). Total: O(N + M).",
+    "space_complexity": "O(N + M) — Adjacency list stores 2M entries. Distance array uses O(N). Queue holds at most N nodes.",
+    "correctness_argument": "BFS explores nodes in order of increasing distance from the source. By induction on distance d: all nodes at distance d are discovered before any node at distance d+1. Self-loops are ignored (node already visited). Parallel edges are handled (only first encounter updates distance). Unreachable nodes retain dist = -1.",
+    "solvability_verdict": "success"
+  },
+  "test_suite": {
+    "test_cases": [
+      {"id": "basic_1", "category": "basic", "input": "6 6\n1 2\n1 3\n2 4\n3 5\n4 6\n5 6", "expected_output": "3", "purpose": "Sample test 1: diamond-shaped graph with two shortest paths of length 3."},
+      {"id": "basic_2", "category": "basic", "input": "4 3\n1 2\n2 3\n3 4", "expected_output": "3", "purpose": "Sample test 2: simple chain graph."},
+      {"id": "basic_3", "category": "basic", "input": "4 2\n1 2\n3 4", "expected_output": "-1", "purpose": "Sample test 3: disconnected graph."},
+      {"id": "basic_4", "category": "basic", "input": "5 6\n1 2\n1 3\n2 3\n2 4\n3 5\n4 5", "expected_output": "2", "purpose": "Graph with cycle (1-2-3). Shortest path to node 5 is 2."},
+      {"id": "edge_1", "category": "edge_case", "input": "1 0", "expected_output": "0", "purpose": "Single node, source equals destination."},
+      {"id": "edge_2", "category": "edge_case", "input": "2 0", "expected_output": "-1", "purpose": "Two nodes, no edges, disconnected."},
+      {"id": "edge_3", "category": "edge_case", "input": "3 3\n1 2\n2 3\n1 3", "expected_output": "1", "purpose": "Complete graph on 3 nodes (triangle). Direct edge 1-3."},
+      {"id": "edge_4", "category": "edge_case", "input": "4 4\n1 2\n2 2\n2 3\n3 4", "expected_output": "3", "purpose": "Self-loop on node 2, ignored by BFS."},
+      {"id": "edge_5", "category": "edge_case", "input": "5 6\n1 2\n2 3\n3 1\n3 4\n4 5\n5 3", "expected_output": "2", "purpose": "Graph with two cycles. Shortest path 1→3→5 has length 2."},
+      {"id": "adv_1", "category": "adversarial", "input": "5 5\n1 2\n2 3\n3 5\n1 4\n4 5", "expected_output": "2", "purpose": "Breaks DFS: finds path of length 3, correct answer is 2."},
+      {"id": "adv_2", "category": "adversarial", "input": "6 7\n1 2\n1 3\n2 4\n3 5\n4 6\n5 6\n2 3", "expected_output": "3", "purpose": "Graph with cross-edge, tests level-by-level BFS."},
+      {"id": "adv_3", "category": "adversarial", "input": "5 7\n1 2\n1 2\n2 3\n2 3\n3 4\n4 5\n3 5", "expected_output": "3", "purpose": "Parallel edges, BFS handles correctly."},
+      {"id": "bound_1", "category": "boundary", "input": "2 1\n1 2", "expected_output": "1", "purpose": "Minimum non-trivial graph."},
+      {"id": "bound_2", "category": "boundary", "input": "7 6\n1 2\n2 3\n3 4\n4 5\n5 6\n6 7", "expected_output": "6", "purpose": "Long chain, shortest path is N-1."},
+      {"id": "bound_3", "category": "boundary", "input": "10 9\n1 2\n2 3\n3 4\n4 5\n5 6\n6 7\n7 8\n8 9\n9 10", "expected_output": "9", "purpose": "Chain of 10 nodes, maximum shortest path."},
+      {"id": "bound_4", "category": "boundary", "input": "10 45\n1 2\n1 3\n1 4\n1 5\n1 6\n1 7\n1 8\n1 9\n1 10\n2 3\n2 4\n2 5\n2 6\n2 7\n2 8\n2 9\n2 10\n3 4\n3 5\n3 6\n3 7\n3 8\n3 9\n3 10\n4 5\n4 6\n4 7\n4 8\n4 9\n4 10\n5 6\n5 7\n5 8\n5 9\n5 10\n6 7\n6 8\n6 9\n6 10\n7 8\n7 9\n7 10\n8 9\n8 10\n9 10", "expected_output": "1", "purpose": "Complete graph K_10, direct edge to destination."},
+      {"id": "bound_5", "category": "boundary", "input": "10 9\n1 10\n1 2\n2 3\n3 4\n4 5\n5 6\n6 7\n7 8\n8 9", "expected_output": "1", "purpose": "Direct edge 1-10 despite long chain elsewhere."},
+      {"id": "bound_6", "category": "boundary", "input": "9 12\n1 2\n1 4\n2 3\n2 5\n3 6\n4 5\n4 7\n5 6\n5 8\n6 9\n7 8\n8 9", "expected_output": "4", "purpose": "Grid-like 3×3 graph, shortest path 1→2→3→6→9."}
+    ],
+    "stress_test_config": {
+      "random_tests": 500,
+      "n_range": [1, 50],
+      "comparison": "Run BFS reference and brute-force (Floyd-Warshall) on each random graph. Compare outputs."
+    },
+    "coverage_report": {
+      "edge_cases_covered": [
+        "N=1 single node (source equals destination)",
+        "N=2 disconnected",
+        "Self-loop on intermediate node",
+        "Parallel edges",
+        "Disconnected graph",
+        "Graph with cycles",
+        "Long chain (maximum shortest path)",
+        "Complete graph",
+        "Grid-like structure"
+      ],
+      "wrong_approaches_tested": [
+        "DFS (first path found): tested by adv_1",
+        "Greedy smallest-neighbor: tested by adv_1"
+      ]
+    }
+  },
+  "editorial": {
+    "hints": [
+      "Hint 1: The problem asks for the shortest path in an unweighted graph. When all edges have equal weight (here, weight 1), Breadth-First Search (BFS) finds the shortest path from a source node to all other nodes. Unlike Depth-First Search (DFS), which explores one branch deeply before backtracking, BFS explores nodes level by level — first all nodes at distance 1, then all at distance 2, and so on.",
+      "Hint 2: To implement BFS, use a queue. Start by enqueueing node 1 with distance 0. For each node dequeued, examine all its neighbors. If a neighbor has not been visited (its distance is still -1), set its distance to the current node's distance + 1, and enqueue it. The key property is that BFS discovers nodes in order of increasing distance, so the first time you set a node's distance, it is guaranteed to be the shortest.",
+      "Hint 3: Handle edge cases carefully. If N = 1, the answer is 0 (source equals destination). If node N is never reached during BFS, output -1. Self-loops (an edge from a node to itself) are harmless: when processing node v, the self-loop leads back to v, which is already visited, so it is skipped. Parallel edges (multiple edges between the same pair) are also harmless: the first edge sets the neighbor's distance, and subsequent edges find the neighbor already visited."
+    ],
+    "brute_force_explanation": "The most straightforward approach to find the shortest path is to try all possible paths from node 1 to node N and return the minimum length. This can be done with DFS or backtracking: from the current node, try all neighbors, recursively find the shortest path from each neighbor to N, and take the minimum.\n\nHowever, this approach has exponential time complexity in the worst case. In a complete graph on N nodes, the number of simple paths from 1 to N is (N-2)!, which is astronomically large even for N = 20.\n\nA slightly better brute force is Floyd-Warshall, which computes all-pairs shortest paths in O(N³) time. For N = 2 × 10⁵, this gives 8 × 10¹⁵ operations — far too slow.\n\nThe key observation is that we do not need all-pairs shortest paths — we only need the shortest path from one source (node 1). And for unweighted graphs, BFS solves this single-source shortest path problem in O(N + M) time, which is optimal since we must at least read the input.",
+    "optimal_solution_walkthrough": "The optimal solution uses Breadth-First Search (BFS) from node 1. BFS is the canonical algorithm for single-source shortest paths in unweighted graphs.\n\nLet us trace BFS on Sample 1: N=6, edges: 1-2, 1-3, 2-4, 3-5, 4-6, 5-6.\n\nInitialize: dist = [-1, 0, -1, -1, -1, -1, -1] (1-indexed). Queue = [1].\n\nStep 1: Dequeue 1. Neighbors: 2, 3. Both unvisited. Set dist[2]=1, dist[3]=1. Queue = [2, 3].\nStep 2: Dequeue 2. Neighbors: 1 (visited), 4 (unvisited). Set dist[4]=2. Queue = [3, 4].\nStep 3: Dequeue 3. Neighbors: 1 (visited), 5 (unvisited). Set dist[5]=2. Queue = [4, 5].\nStep 4: Dequeue 4. Neighbors: 2 (visited), 6 (unvisited). Set dist[6]=3. Queue = [5, 6].\nStep 5: Dequeue 5. Neighbors: 3 (visited), 6 (visited). Queue = [6].\nStep 6: Dequeue 6. curr == N, so break.\n\nAnswer: dist[6] = 3. The shortest path is 1 → 2 → 4 → 6 (or 1 → 3 → 5 → 6), with 3 hops.\n\n**Why BFS is correct:** BFS processes nodes in order of their distance from the source. All nodes at distance d are processed before any node at distance d+1. When we first discover a node v as a neighbor of some node u at distance d, we know v is at distance d+1 (it cannot be closer, because then it would have been discovered earlier). This level-by-level exploration guarantees that the first distance assigned to each node is the shortest distance.\n\n**Handling edge cases:**\n- Self-loops: When processing node v, a self-loop leads to neighbor v. Since dist[v] is already set (not -1), the self-loop is skipped.\n- Parallel edges: Multiple edges between u and w mean w appears multiple times in adj[u]. The first occurrence sets dist[w]; subsequent occurrences find dist[w] already set and skip.\n- Disconnected graph: If N is unreachable, it is never enqueued, and dist[N] remains -1.",
+    "complexity_analysis": "**Time complexity:** O(N + M) — Each node is enqueued and dequeued at most once, contributing O(N). Each edge is examined at most twice (once from each endpoint), contributing O(M). Building the adjacency list takes O(N + M). Total: O(N + M). With N, M ≤ 2 × 10⁵, this is about 4 × 10⁵ operations, well within the 2-second time limit.\n\n**Space complexity:** O(N + M) — The adjacency list stores 2M entries (each undirected edge appears twice). The distance array uses O(N). The queue holds at most N elements. Total: O(N + M). With N, M ≤ 2 × 10⁵, memory is about 2 × 10⁵ × 4 bytes (dist array) + 4 × 10⁵ × 4 bytes (adjacency list) ≈ 2.4 MB, well within the 256 MB limit.",
+    "alternative_approaches": [
+      "Dijkstra's algorithm with a binary heap: Correctly finds shortest paths in O(M log N) time. On unweighted graphs, this is slower than BFS by a log factor. For N, M ≤ 2 × 10⁵, O(M log N) ≈ 3.6 × 10⁶, which still passes but is unnecessary. Dijkstra is needed when edges have different weights, but not here.",
+      "0-1 BFS with a deque: A specialized algorithm for graphs with edge weights 0 and 1. Not applicable here since all edges have weight 1, but it is a natural extension to know about. If some links were 'free' (weight 0), 0-1 BFS would solve the problem in O(N + M).",
+      "Bidirectional BFS: Run BFS simultaneously from node 1 and node N, alternating levels. The two searches meet in the middle, potentially exploring fewer nodes. Worst-case complexity is still O(N + M), but in practice it can be significantly faster on large graphs."
+    ],
+    "common_mistakes": [
+      "Using DFS instead of BFS: A very common mistake is to use DFS and return the length of the first path found to node N. DFS does not explore nodes in order of distance — it follows one branch as deep as possible before backtracking. The first path DFS finds is not necessarily the shortest. Counterexample: edges 1-2, 2-3, 3-5, 1-4, 4-5. DFS (smallest-neighbor-first) finds 1→2→3→5 (length 3), but the shortest path is 1→4→5 (length 2). Always use BFS for shortest paths in unweighted graphs.",
+      "Forgetting to handle disconnected graphs: If node N is not reachable from node 1, BFS will never visit N. The distance array entry for N remains at its initial value (-1). Make sure to output -1 in this case, not 0 or some other default value.",
+      "Not handling N = 1: When N = 1, the source and destination are the same node. The shortest path has 0 edges. Initialize dist[1] = 0 before starting BFS, and the answer dist[N] = dist[1] = 0 is correct. Some implementations skip this case and produce incorrect output.",
+      "Infinite loops from self-loops or cycles: If you do not check whether a neighbor has been visited before enqueuing it, self-loops and cycles cause infinite loops. Always check dist[neighbor] == -1 before enqueuing. This is the standard 'visited' check in BFS."
+    ]
+  },
+  "quality_report": {
+    "shield_scores": {
+      "statement_clarity": 9,
+      "constraint_solution_alignment": 9,
+      "solution_correctness": 9,
+      "test_coverage": 9,
+      "pedagogical_value": 9,
+      "difficulty_calibration": 8,
+      "story_quality": 8,
+      "sample_test_quality": 9,
+      "subtask_design": 8,
+      "overall_elegance": 8
+    },
+    "sword_findings": [
+      "Minor: no static test with N = 2 × 10⁵ (handled by stress_test_config). Low severity since BFS correctness is size-independent."
+    ],
+    "pipeline_rounds": 1,
+    "warnings": []
+  }
+}

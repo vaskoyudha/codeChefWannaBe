@@ -1,0 +1,32 @@
+{
+  "domain": "dsa",
+  "topic": "graph",
+  "subtopic": "graph bfs",
+  "difficulty": {
+    "codeforces_rating": 1200,
+    "tier": "easy",
+    "bloom_level": "apply"
+  },
+  "learning_objective": "After solving this problem, the student will be able to implement breadth-first search on an unweighted graph to find the shortest path (minimum number of edges) between two nodes, and correctly handle edge cases such as disconnected graphs, self-loops, and cycles.",
+  "prerequisites": [
+    "graph representation (adjacency list)",
+    "queue data structure and FIFO operations",
+    "basic traversal algorithms (DFS, BFS)",
+    "understanding of O(N + M) complexity",
+    "visited arrays and cycle detection"
+  ],
+  "core_concept": "bfs_shortest_path_unweighted",
+  "tags": [
+    "graph",
+    "bfs",
+    "shortest path",
+    "unweighted graph",
+    "queues"
+  ],
+  "constraint_hints": {
+    "n_range": [1, 200000],
+    "expected_complexity": "O(N + M)",
+    "time_limit_seconds": 2
+  },
+  "story_direction": "A network of N computers is connected by M bidirectional communication links. A message must be sent from computer 1 to computer N, relaying through intermediate computers. Each link takes one hop to traverse. The goal is to find the minimum number of hops needed to deliver the message from computer 1 to computer N."
+}

@@ -1,0 +1,50 @@
+{
+  "approach": "Breadth-First Search (BFS) from node 1. BFS explores nodes level by level, where level k contains all nodes at distance exactly k from the source. Since BFS discovers nodes in order of increasing distance, the first time we reach node N, we have found the shortest path. We maintain a distance array initialized to -1 (unreachable), set distance[1] = 0, and use a queue. For each node dequeued, we iterate over its neighbors; any unvisited neighbor gets distance[current] + 1 and is enqueued. Self-loops and parallel edges are handled naturally: a self-loop on node v means v is a neighbor of itself, but since v is already visited when we process it, the self-loop is ignored. Parallel edges simply mean we check the same neighbor multiple times, but only the first check results in an update.",
+  "pseudocode": [
+    "function solve():",
+    "    read N, M",
+    "    adj = array of N+1 empty lists",
+    "    for i = 1 to M:",
+    "        read u, v",
+    "        adj[u].append(v)",
+    "        adj[v].append(u)",
+    "",
+    "    dist = array of N+1, all initialized to -1",
+    "    dist[1] = 0",
+    "    queue = [1]",
+    "",
+    "    while queue is not empty:",
+    "        curr = queue.dequeue()",
+    "        if curr == N:",
+    "            break",
+    "        for each neighbor in adj[curr]:",
+    "            if dist[neighbor] == -1:",
+    "                dist[neighbor] = dist[curr] + 1",
+    "                queue.enqueue(neighbor)",
+    "",
+    "    print dist[N]"
+  ],
+  "time_complexity": "O(N + M) — Each node is enqueued and dequeued at most once (O(N) total). Each edge is examined at most twice (once from each endpoint in an undirected graph), giving O(M) total edge processing. The adjacency list construction takes O(N + M) time. Overall: O(N + M). With N, M ≤ 2 × 10⁵, this is about 4 × 10⁵ operations, well within the 2-second time limit.",
+  "space_complexity": "O(N + M) — The adjacency list stores 2M entries (each undirected edge appears twice). The distance array uses O(N) space. The queue holds at most N nodes. Total: O(N + M).",
+  "correctness_argument": "**Technique: BFS shortest path on unweighted graphs.**\n\nBFS explores nodes in order of their distance from the source. We prove this by induction on the distance d.\n\n*Base case:* Node 1 (the source) is at distance 0 and is the first node processed. Correct.\n\n*Inductive step:* Assume all nodes at distance d are discovered before any node at distance d+1. When we process a node u at distance d, we examine all its neighbors. Any unvisited neighbor v must be at distance d+1 (since it is reachable from the source via u in d+1 steps, and it was not reachable in fewer steps — otherwise it would have been discovered earlier). After processing all nodes at distance d, all nodes at distance d+1 have been discovered.\n\n*Self-loops:* A self-loop on node v means v appears in adj[v]. When we process v, we check neighbor v. Since dist[v] is already set (not -1), the self-loop is ignored. No incorrect distance is assigned.\n\n*Parallel edges:* If there are k parallel edges between u and v, then v appears k times in adj[u]. The first time we check v, if it is unvisited, we set its distance and enqueue it. Subsequent checks find dist[v] ≠ -1 and skip. The distance is correct.\n\n*Disconnected nodes:* If node N is not reachable from node 1, it is never enqueued, and dist[N] remains -1. This is the correct output.\n\n*Termination:* The algorithm terminates because each node is enqueued at most once (we only enqueue when dist changes from -1 to a non-negative value, and this happens at most once per node). With N nodes, the queue is depleted after at most N dequeue operations.",
+  "brute_force_solution": {
+    "approach": "Compute the shortest path using Floyd-Warshall algorithm or by running BFS from every node. Floyd-Warshall computes all-pairs shortest paths in O(N³) time. Alternatively, run BFS from node 1 (which is already O(N+M)), but a true brute force would enumerate all simple paths from 1 to N and find the minimum length — this takes exponential time in the worst case.",
+    "time_complexity": "O(N³) for Floyd-Warshall, or O(N × (N + M)) if running BFS from every node. For N = 2 × 10⁵, O(N³) = 8 × 10¹⁵, which is far too slow.",
+    "use": "Use Floyd-Warshall or repeated BFS on small inputs (N ≤ 500) to verify the reference solution's output on random test cases. Any mismatch indicates a bug."
+  },
+  "common_wrong_approaches": [
+    {
+      "approach": "Use Depth-First Search (DFS) from node 1 and return the length of the first path found to node N.",
+      "why_wrong": "DFS does not explore nodes in order of distance. It follows one branch as deep as possible before backtracking. The first path DFS finds to node N is not necessarily the shortest. Counterexample: Graph with edges 1-2, 2-5, 1-3, 3-4, 4-5. DFS (visiting smallest-index neighbors first) finds path 1→2→5 (length 2). But the path 1→3→4→5 has length 3. In this case DFS happens to find the shorter path. However, with edges 1-2, 2-3, 3-5, 1-4, 4-5: DFS finds 1→2→3→5 (length 3), but the shortest path is 1→4→5 (length 2). DFS is not guaranteed to find the shortest path in an unweighted graph."
+    },
+    {
+      "approach": "Use Dijkstra's algorithm with a priority queue.",
+      "why_wrong": "Dijkstra's algorithm correctly finds shortest paths and would give the right answer. However, it runs in O(M log N) time with a binary heap, which is slower than BFS's O(N + M) on unweighted graphs. For the given constraints (N, M ≤ 2 × 10⁵), O(M log N) ≈ 2 × 10⁵ × 18 ≈ 3.6 × 10⁶ operations, which still passes within the time limit. But it is unnecessarily complex and slower than BFS. In a tighter time limit or larger constraints, the extra log factor could cause TLE."
+    },
+    {
+      "approach": "Greedy approach: from the current node, always move to the unvisited neighbor with the smallest index, until reaching node N.",
+      "why_wrong": "This greedy strategy does not consider the global graph structure. Choosing the smallest-indexed neighbor at each step may lead down a long chain, while a larger-indexed neighbor might provide a shortcut. Counterexample: Graph with edges 1-2, 2-3, 3-4, 4-7, 1-5, 5-7. Greedy picks 1→2→3→4→7 (length 4), but shortest is 1→5→7 (length 2)."
+    }
+  ],
+  "solvability_verdict": "success"
+}

@@ -1,0 +1,77 @@
+{
+  "verdict": "APPROVED",
+  "shield_check": {
+    "statement_clarity": {
+      "score": 9,
+      "issues": [
+        "Problem statement is clear and unambiguous. The graph is 1-indexed, edges are bidirectional, and the output is well-defined. Self-loops and parallel edges are explicitly mentioned."
+      ]
+    },
+    "constraint_solution_alignment": {
+      "score": 9,
+      "issues": [
+        "N, M ≤ 2 × 10⁵ with O(N + M) BFS ≈ 4 × 10⁵ operations comfortably fits the 2-second time limit. The next-slower approach O(N²) with N = 2 × 10⁵ gives 4 × 10¹⁰, which definitively fails."
+      ]
+    },
+    "solution_correctness": {
+      "score": 9,
+      "issues": [
+        "BFS correctness argument is valid. Self-loop and parallel edge handling is explicitly addressed. The inductive proof of level-by-level distance discovery is standard and correct."
+      ]
+    },
+    "test_coverage": {
+      "score": 9,
+      "issues": [
+        "18 test cases across all 4 categories: 4 basic, 5 edge_case, 3 adversarial, 6 boundary. Covers disconnected graphs, single node, self-loops, parallel edges, cycles, complete graphs, and long chains."
+      ]
+    },
+    "pedagogical_value": {
+      "score": 9,
+      "issues": [
+        "Problem is a canonical BFS shortest-path exercise. It teaches the fundamental technique of using BFS for unweighted shortest paths, which transfers to many other problems (multi-source BFS, 0-1 BFS, etc.)."
+      ]
+    },
+    "difficulty_calibration": {
+      "score": 8,
+      "issues": [
+        "Appropriately rated at 1200 (easy). The Bloom level 'apply' matches the tier. The main insight (using BFS instead of DFS for shortest paths) is accessible to the target audience."
+      ]
+    },
+    "story_quality": {
+      "score": 8,
+      "issues": [
+        "The computer network / message relay story is neutral, motivating, and naturally suggests graph traversal. It does not reveal the algorithm."
+      ]
+    },
+    "sample_test_quality": {
+      "score": 9,
+      "issues": [
+        "Three samples cover: basic graph with multiple shortest paths (sample 1), simple chain (sample 2), and disconnected graph returning -1 (sample 3). Each has a clear explanation."
+      ]
+    },
+    "subtask_design": {
+      "score": 8,
+      "issues": [
+        "Two subtasks: small N ≤ 1000 (30 pts) allows O(N²) approaches, full N ≤ 2 × 10⁵ (70 pts) requires O(N + M) BFS. Point distribution rewards the optimal approach."
+      ]
+    },
+    "overall_elegance": {
+      "score": 8,
+      "issues": [
+        "Clean shortest-path-in-unweighted-graph structure. The BFS solution is simple yet instructive. The problem is a solid educational example of graph BFS."
+      ]
+    }
+  },
+  "sword_check": {
+    "ambiguity_found": [],
+    "unsolvable_cases": [],
+    "weak_test_coverage": [
+      "Minor: no test with N = 2 × 10⁵ stress test in the static suite (handled by stress_test_config). Low severity since BFS correctness does not depend on input size."
+    ],
+    "wrong_approaches_that_pass": []
+  },
+  "revision_target": "problem_writer",
+  "specific_feedback": "All quality dimensions score ≥ 8. No critical or major Sword findings. The problem is approved as-is. Minor suggestion: consider adding a test with a large star graph (one center connected to N-1 leaves) for additional coverage, but this is not blocking.",
+  "round": 1,
+  "max_rounds": 2
+}

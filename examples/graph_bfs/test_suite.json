@@ -1,0 +1,154 @@
+{
+  "test_cases": [
+    {
+      "id": "basic_1",
+      "category": "basic",
+      "input": "6 6\n1 2\n1 3\n2 4\n3 5\n4 6\n5 6",
+      "expected_output": "3",
+      "purpose": "Sample test 1: diamond-shaped graph with two shortest paths of length 3 from 1 to 6."
+    },
+    {
+      "id": "basic_2",
+      "category": "basic",
+      "input": "4 3\n1 2\n2 3\n3 4",
+      "expected_output": "3",
+      "purpose": "Sample test 2: simple chain graph. Only one path exists."
+    },
+    {
+      "id": "basic_3",
+      "category": "basic",
+      "input": "4 2\n1 2\n3 4",
+      "expected_output": "-1",
+      "purpose": "Sample test 3: disconnected graph. Node 4 unreachable from node 1."
+    },
+    {
+      "id": "basic_4",
+      "category": "basic",
+      "input": "5 6\n1 2\n1 3\n2 3\n2 4\n3 5\n4 5",
+      "expected_output": "2",
+      "purpose": "Graph with a cycle (1-2-3). BFS: dist[1]=0, dist[2]=1, dist[3]=1, dist[4]=2 (via 2), dist[5]=2 (via 3). Shortest path to node 5 is 2 hops (1→3→5)."
+    },
+    {
+      "id": "edge_1",
+      "category": "edge_case",
+      "input": "1 0",
+      "expected_output": "0",
+      "purpose": "Single node, no edges. Source equals destination (N=1), so 0 hops needed."
+    },
+    {
+      "id": "edge_2",
+      "category": "edge_case",
+      "input": "2 0",
+      "expected_output": "-1",
+      "purpose": "Two nodes, no edges. Node 2 is unreachable from node 1."
+    },
+    {
+      "id": "edge_3",
+      "category": "edge_case",
+      "input": "3 3\n1 2\n2 3\n1 3",
+      "expected_output": "1",
+      "purpose": "Complete graph on 3 nodes (triangle). Direct edge 1-3 gives shortest path of 1."
+    },
+    {
+      "id": "edge_4",
+      "category": "edge_case",
+      "input": "4 4\n1 2\n2 2\n2 3\n3 4",
+      "expected_output": "3",
+      "purpose": "Self-loop on node 2. BFS ignores the self-loop since node 2 is already visited when processing it. Path: 1→2→3→4 has length 3."
+    },
+    {
+      "id": "edge_5",
+      "category": "edge_case",
+      "input": "5 6\n1 2\n2 3\n3 1\n3 4\n4 5\n5 3",
+      "expected_output": "2",
+      "purpose": "Graph with cycle 1-2-3-1 and cycle 3-4-5-3. BFS: dist[1]=0, dist[2]=1, dist[3]=1, dist[4]=2, dist[5]=2. Shortest path to 5 is 2 (1→3→5)."
+    },
+    {
+      "id": "adv_1",
+      "category": "adversarial",
+      "input": "5 5\n1 2\n2 3\n3 5\n1 4\n4 5",
+      "expected_output": "2",
+      "purpose": "Breaks DFS wrong approach. DFS (smallest-neighbor-first) finds 1→2→3→5 (length 3), but BFS correctly finds 1→4→5 (length 2)."
+    },
+    {
+      "id": "adv_2",
+      "category": "adversarial",
+      "input": "6 7\n1 2\n1 3\n2 4\n3 5\n4 6\n5 6\n2 3",
+      "expected_output": "3",
+      "purpose": "Graph with cross-edge 2-3 creating multiple paths. BFS: dist[1]=0, dist[2]=1, dist[3]=1, dist[4]=2, dist[5]=2, dist[6]=3. Tests correct level-by-level exploration."
+    },
+    {
+      "id": "adv_3",
+      "category": "adversarial",
+      "input": "5 7\n1 2\n1 2\n2 3\n2 3\n3 4\n4 5\n3 5",
+      "expected_output": "3",
+      "purpose": "Parallel edges between nodes 1-2 and 2-3. BFS handles parallel edges correctly: dist[1]=0, dist[2]=1, dist[3]=2, dist[5]=3 (via 3→5), dist[4]=3 (via 3→4). Shortest path to 5 is 3 (1→2→3→5)."
+    },
+    {
+      "id": "bound_1",
+      "category": "boundary",
+      "input": "2 1\n1 2",
+      "expected_output": "1",
+      "purpose": "Minimum non-trivial graph: 2 nodes, 1 edge. Shortest path is 1 hop."
+    },
+    {
+      "id": "bound_2",
+      "category": "boundary",
+      "input": "7 6\n1 2\n2 3\n3 4\n4 5\n5 6\n6 7",
+      "expected_output": "6",
+      "purpose": "Long chain of 7 nodes. Shortest path from 1 to 7 is 6 hops (the only path)."
+    },
+    {
+      "id": "bound_3",
+      "category": "boundary",
+      "input": "10 9\n1 2\n2 3\n3 4\n4 5\n5 6\n6 7\n7 8\n8 9\n9 10",
+      "expected_output": "9",
+      "purpose": "Chain of 10 nodes. Maximum shortest path in a 10-node connected graph is 9 (Hamiltonian path)."
+    },
+    {
+      "id": "bound_4",
+      "category": "boundary",
+      "input": "10 45\n1 2\n1 3\n1 4\n1 5\n1 6\n1 7\n1 8\n1 9\n1 10\n2 3\n2 4\n2 5\n2 6\n2 7\n2 8\n2 9\n2 10\n3 4\n3 5\n3 6\n3 7\n3 8\n3 9\n3 10\n4 5\n4 6\n4 7\n4 8\n4 9\n4 10\n5 6\n5 7\n5 8\n5 9\n5 10\n6 7\n6 8\n6 9\n6 10\n7 8\n7 9\n7 10\n8 9\n8 10\n9 10",
+      "expected_output": "1",
+      "purpose": "Complete graph K_10 (all 45 edges). Every node is directly connected to every other. Shortest path from 1 to 10 is 1."
+    },
+    {
+      "id": "bound_5",
+      "category": "boundary",
+      "input": "10 9\n1 10\n1 2\n2 3\n3 4\n4 5\n5 6\n6 7\n7 8\n8 9",
+      "expected_output": "1",
+      "purpose": "Star-like with direct edge 1-10. Despite the chain 1-2-3-...-9, the direct edge gives shortest path 1."
+    },
+    {
+      "id": "bound_6",
+      "category": "boundary",
+      "input": "9 12\n1 2\n1 4\n2 3\n2 5\n3 6\n4 5\n4 7\n5 6\n5 8\n6 9\n7 8\n8 9",
+      "expected_output": "4",
+      "purpose": "Grid-like 3×3 graph. BFS: dist[1]=0, dist[2]=1, dist[4]=1, dist[3]=2, dist[5]=2, dist[7]=2, dist[6]=3, dist[8]=3, dist[9]=4. Shortest path 1→2→3→6→9 has 4 hops."
+    }
+  ],
+  "stress_test_config": {
+    "random_tests": 500,
+    "n_range": [1, 50],
+    "comparison": "Run BFS reference solution and brute-force shortest path (repeated BFS or Floyd-Warshall) on each random graph. Compare outputs. Generate random N in [1,50], random M in [0, N*(N-1)/2], random edges with endpoints in [1,N] (may include self-loops and parallel edges)."
+  },
+  "coverage_report": {
+    "edge_cases_covered": [
+      "N=1 single node (source equals destination, answer 0)",
+      "N=2 with no edges (disconnected, answer -1)",
+      "N=2 with direct edge (minimum non-trivial, answer 1)",
+      "Self-loop on intermediate node (ignored by BFS)",
+      "Parallel edges between same pair of nodes",
+      "Disconnected graph (unreachable destination)",
+      "Graph with cycles (triangle, larger cycles)",
+      "Long chain (maximum shortest path for given N)",
+      "Complete graph (direct edge to destination)",
+      "Grid-like graph structure"
+    ],
+    "wrong_approaches_tested": [
+      "DFS (first path found): tested by adv_1 — DFS finds path of length 3, correct BFS answer is 2.",
+      "Greedy smallest-neighbor: tested by adv_1 — greedy picks 1→2→3→5 (length 3), correct answer is 1→4→5 (length 2).",
+      "Dijkstra overkill: not directly tested by a specific case (gives correct answer but is slower). Covered by time complexity analysis."
+    ]
+  }
+}
