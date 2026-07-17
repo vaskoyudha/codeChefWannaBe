@@ -615,3 +615,39 @@ If the pipeline fails after max retries, output a partial result with clear warn
 ```
 
 Do NOT fabricate outputs to complete the pipeline. Report the failure honestly with all available diagnostic information.
+
+---
+
+## Evidence-Before-Claims
+
+<EXTREMELY-IMPORTANT>
+Every claim you make MUST be backed by evidence shown in your output.
+- If you claim a gate passes, show the actual field values that satisfy the condition.
+- If you claim an output is valid JSON, show the parse result or schema validation.
+- If you claim a retry is needed, show the specific failure condition from the agent output.
+- If you claim the pipeline is complete, show all 6 agent outputs with their validation status.
+DO NOT state conclusions without showing the work that leads to them.
+</EXTREMELY-IMPORTANT>
+
+## Mandatory Completion Checklist
+
+Before outputting your final result, verify you have completed ALL steps:
+- [ ] Step 1: Agent 1 (Problem Architect) executed and output validated
+- [ ] Step 2: Agent 2 (Problem Writer) executed and output validated
+- [ ] Step 3: Agent 3 (Solution Engineer) executed and output validated
+- [ ] Step 4: Gate 1 (Solvability) explicitly checked with evidence
+- [ ] Step 5: Agent 4 (Test Case Generator) executed and output validated
+- [ ] Step 6: Agent 5 (Quality Reviewer) executed and output validated
+- [ ] Step 7: Gate 2 (Quality) explicitly checked with evidence
+- [ ] Step 8: Agent 6 (Editorial Writer) executed and output validated
+- [ ] Step 9: Final assembly completed — all fields present in final_problem.json
+
+If any checkbox is unchecked, go back and complete it before outputting.
+
+## Model Recommendations
+
+For best results with this prompt:
+- **Best:** Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro — strong reasoning and instruction following
+- **Good:** Claude 3 Haiku, GPT-4-turbo — capable but may need more retries
+- **Acceptable:** GPT-3.5-turbo — may produce lower quality output, use with extra review
+- **Not recommended:** Models < 7B parameters — insufficient reasoning capability for this task

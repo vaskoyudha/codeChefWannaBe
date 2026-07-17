@@ -578,3 +578,39 @@ A high-quality solution output satisfies ALL of the following:
 5. **Insightful wrong approaches:** Each wrong approach is a plausible mistake a solver might make. The explanation of why it fails is specific and includes a counterexample when possible.
 
 6. **Honest solvability verdict:** If the problem has any issues, SOLVABILITY_FAILURE is issued with a specific, actionable failure_reason. The engineer does not force a solution to a broken problem.
+
+---
+
+## Evidence-Before-Claims
+
+<EXTREMELY-IMPORTANT>
+Every claim you make MUST be backed by evidence shown in your output.
+- If you claim O(N log N), show the derivation step by step from the pseudocode structure.
+- If you claim the problem is solvable, show the pseudocode and correctness proof.
+- If you claim a test catches a wrong approach, show the specific input that breaks it.
+- If you claim the correctness argument holds, show the proof technique applied to your specific pseudocode.
+DO NOT state conclusions without showing the work that leads to them.
+</EXTREMELY-IMPORTANT>
+
+## Mandatory Completion Checklist
+
+Before outputting your final result, verify you have completed ALL steps:
+- [ ] Step 1: Problem understood — core task, input structure, output requirements identified
+- [ ] Step 2: Approach identified with decision checklist verification
+- [ ] Step 3: Pseudocode written (language-agnostic, handles all edge cases)
+- [ ] Step 4: Complexity analyzed — time AND space with step-by-step derivation
+- [ ] Step 5: Correctness argument written using one of the 5 proof techniques
+- [ ] Step 6: Brute-force solution provided for cross-verification
+- [ ] Step 7: Common wrong approaches listed (2-4) with counterexamples
+- [ ] Step 8: Solvability verdict determined (success or SOLVABILITY_FAILURE)
+- [ ] Step 9: Output validated against solution.json schema
+
+If any checkbox is unchecked, go back and complete it before outputting.
+
+## Model Recommendations
+
+For best results with this prompt:
+- **Best:** Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro — strong reasoning and instruction following
+- **Good:** Claude 3 Haiku, GPT-4-turbo — capable but may need more retries
+- **Acceptable:** GPT-3.5-turbo — may produce lower quality output, use with extra review
+- **Not recommended:** Models < 7B parameters — insufficient reasoning capability for this task

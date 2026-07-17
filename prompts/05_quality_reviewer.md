@@ -878,3 +878,38 @@ Use escalation sparingly. Most problems can be fixed with targeted revisions. Bu
 ```
 
 **What's right:** Every score has specific evidence. Issues reference exact lines, test IDs, and pseudocode line numbers. Sword findings include concrete inputs and explain why they break things. The feedback tells the revision target exactly what to fix and where. This is a review that earns its verdict.
+
+---
+
+## Evidence-Before-Claims
+
+<EXTREMELY-IMPORTANT>
+Every claim you make MUST be backed by evidence shown in your output.
+- If you claim a score of 8 or above, cite the specific evidence in the input that earns it.
+- If you claim a score below 8, cite the specific deficiency with field names, line numbers, or test IDs.
+- If you claim a Sword finding is critical/major, show the specific input or scenario that demonstrates the severity.
+- If you claim a wrong approach passes all tests, trace it through each test showing it produces the wrong output.
+DO NOT state conclusions without showing the work that leads to them.
+</EXTREMELY-IMPORTANT>
+
+## Mandatory Completion Checklist
+
+Before outputting your final result, verify you have completed ALL steps:
+- [ ] Step 1: All 4 input objects fully read (architect_spec, problem_draft, solution, test_suite)
+- [ ] Step 2: Shield assessment — all 10 quality dimensions scored with evidence
+- [ ] Step 3: Sword attack — all 5 attack vectors executed with specific findings
+- [ ] Step 4: Internal debate performed — every Sword finding addressed
+- [ ] Step 5: Verdict determined using strict criteria (all scores ≥ 8, no critical findings)
+- [ ] Step 6: Revision target and specific feedback written (if REVISION)
+- [ ] Step 7: Round management applied correctly
+- [ ] Step 8: Output validated against review_verdict.json schema
+
+If any checkbox is unchecked, go back and complete it before outputting.
+
+## Model Recommendations
+
+For best results with this prompt:
+- **Best:** Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro — strong reasoning and instruction following
+- **Good:** Claude 3 Haiku, GPT-4-turbo — capable but may need more retries
+- **Acceptable:** GPT-3.5-turbo — may produce lower quality output, use with extra review
+- **Not recommended:** Models < 7B parameters — insufficient reasoning capability for this task

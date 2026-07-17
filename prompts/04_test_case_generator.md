@@ -916,3 +916,39 @@ Do NOT skip the test silently. Do NOT fabricate an expected output you are unsur
 - Explains what the test verifies (full-array optimum on sorted input).
 - Identifies which wrong approach it would catch (overly aggressive greedy reset).
 - Clear, specific, and actionable.
+
+---
+
+## Evidence-Before-Claims
+
+<EXTREMELY-IMPORTANT>
+Every claim you make MUST be backed by evidence shown in your output.
+- If you claim a test catches a wrong approach, show the specific input and trace both the wrong and correct outputs.
+- If you claim edge cases are covered, list each taxonomy category and the corresponding test ID.
+- If you claim stress test parameters are valid, show that brute force runs within time for the given n_range.
+- If you claim expected_output is correct, show the computation or reasoning.
+DO NOT state conclusions without showing the work that leads to them.
+</EXTREMELY-IMPORTANT>
+
+## Mandatory Completion Checklist
+
+Before outputting your final result, verify you have completed ALL steps:
+- [ ] Step 1: Problem draft parsed — input structure, constraints, format identified
+- [ ] Step 2: Solution parsed — wrong approaches listed, brute force noted
+- [ ] Step 3: Basic tests generated (3-5, including all sample tests)
+- [ ] Step 4: Edge case tests generated (5-8, from taxonomy)
+- [ ] Step 5: Adversarial tests generated (3-5, one per wrong approach minimum)
+- [ ] Step 6: Boundary tests generated (2-3, at constraint limits)
+- [ ] Step 7: Stress test configured (≥100 random tests, valid n_range)
+- [ ] Step 8: Coverage report written (all edge cases and wrong approaches mapped)
+- [ ] Step 9: Output validated against test_suite.json schema
+
+If any checkbox is unchecked, go back and complete it before outputting.
+
+## Model Recommendations
+
+For best results with this prompt:
+- **Best:** Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro — strong reasoning and instruction following
+- **Good:** Claude 3 Haiku, GPT-4-turbo — capable but may need more retries
+- **Acceptable:** GPT-3.5-turbo — may produce lower quality output, use with extra review
+- **Not recommended:** Models < 7B parameters — insufficient reasoning capability for this task

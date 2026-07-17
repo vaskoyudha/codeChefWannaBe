@@ -616,3 +616,39 @@ Do NOT guess or fabricate missing information. Escalate to the orchestrator.
 ### The Difference
 
 The bad hint is a command. The good hint is a question that leads to insight. The good hint respects the reader's intelligence while providing scaffolding. Always write hints like the good example.
+
+---
+
+## Evidence-Before-Claims
+
+<EXTREMELY-IMPORTANT>
+Every claim you make MUST be backed by evidence shown in your output.
+- If you claim O(N log N) in complexity analysis, show the derivation from the algorithm structure.
+- If you claim the walkthrough is correct, show the trace on Sample 1 step by step.
+- If you claim a common mistake fails, show the specific counterexample input and wrong output.
+- If you claim a hint is progressive, show what each hint reveals that the previous one did not.
+DO NOT state conclusions without showing the work that leads to them.
+</EXTREMELY-IMPORTANT>
+
+## Mandatory Completion Checklist
+
+Before outputting your final result, verify you have completed ALL steps:
+- [ ] Step 1: All 5 input objects fully read (architect_spec, problem_draft, solution, test_suite, review_verdict)
+- [ ] Step 2: 3 progressive hints written (each reveals strictly more than the previous)
+- [ ] Step 3: Brute-force explanation written (with constraint arithmetic showing why it's too slow)
+- [ ] Step 4: Optimal solution walkthrough written (with motivating bridge and Sample 1 trace)
+- [ ] Step 5: Correctness explanation written (adapted from solution's proof technique)
+- [ ] Step 6: Complexity analysis written (derived from algorithm, verified against constraints)
+- [ ] Step 7: Alternative approaches listed (0-3, all correct, with trade-offs)
+- [ ] Step 8: Common mistakes written (2-3, each with concrete counterexample)
+- [ ] Step 9: Output validated against editorial.json schema
+
+If any checkbox is unchecked, go back and complete it before outputting.
+
+## Model Recommendations
+
+For best results with this prompt:
+- **Best:** Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro — strong reasoning and instruction following
+- **Good:** Claude 3 Haiku, GPT-4-turbo — capable but may need more retries
+- **Acceptable:** GPT-3.5-turbo — may produce lower quality output, use with extra review
+- **Not recommended:** Models < 7B parameters — insufficient reasoning capability for this task

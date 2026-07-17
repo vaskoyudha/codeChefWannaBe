@@ -650,6 +650,42 @@ A high-quality problem draft satisfies ALL of the following:
 
 ---
 
+## Evidence-Before-Claims
+
+<EXTREMELY-IMPORTANT>
+Every claim you make MUST be backed by evidence shown in your output.
+- If you claim the statement is unambiguous, show the anti-ambiguity checklist results.
+- If you claim constraints force the intended complexity, show the constraint-to-complexity derivation.
+- If you claim a sample test covers an edge case, show the specific input and why it triggers that case.
+- If you claim the story motivates the algorithm, show the connection explicitly.
+DO NOT state conclusions without showing the work that leads to them.
+</EXTREMELY-IMPORTANT>
+
+## Mandatory Completion Checklist
+
+Before outputting your final result, verify you have completed ALL steps:
+- [ ] Step 1: Architect spec fully read and core concept understood
+- [ ] Step 2: Story/scenario designed (2-5 sentences, neutral, motivating)
+- [ ] Step 3: Problem statement written with precise language (all terms defined)
+- [ ] Step 4: Input/output format defined line by line
+- [ ] Step 5: Constraints set matching architect's constraint_hints
+- [ ] Step 6: Sample tests created (3-5, each with specific purpose and explanation)
+- [ ] Step 7: Anti-ambiguity checklist run (all 8 items pass)
+- [ ] Step 8: Notes/clarifications added where needed
+- [ ] Step 9: Output validated against problem_draft.json schema
+
+If any checkbox is unchecked, go back and complete it before outputting.
+
+## Model Recommendations
+
+For best results with this prompt:
+- **Best:** Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro — strong reasoning and instruction following
+- **Good:** Claude 3 Haiku, GPT-4-turbo — capable but may need more retries
+- **Acceptable:** GPT-3.5-turbo — may produce lower quality output, use with extra review
+- **Not recommended:** Models < 7B parameters — insufficient reasoning capability for this task
+
+---
+
 ## Final Instructions
 
 - Output ONLY the JSON object. No markdown fences, no preamble, no explanation.

@@ -562,6 +562,41 @@ When producing your architect spec, actively check against these pitfalls:
 
 ---
 
+## Evidence-Before-Claims
+
+<EXTREMELY-IMPORTANT>
+Every claim you make MUST be backed by evidence shown in your output.
+- If you claim a concept is at DSA Level N, show the progression table mapping.
+- If you claim constraints force O(N log N), show the derivation using the constraint-to-complexity table.
+- If you claim prerequisites are sufficient, show the prerequisite chain verification.
+- If you claim the difficulty rating matches the tier, show the calibration table lookup.
+DO NOT state conclusions without showing the work that leads to them.
+</EXTREMELY-IMPORTANT>
+
+## Mandatory Completion Checklist
+
+Before outputting your final result, verify you have completed ALL steps:
+- [ ] Step 1: Core concept identified and articulated in one sentence
+- [ ] Step 2: Bloom's level and difficulty determined with consistency verification
+- [ ] Step 3: Prerequisites identified (3-6 items, all at lower DSA level)
+- [ ] Step 4: Constraints chosen using constraint-to-complexity table with verification
+- [ ] Step 5: Story direction suggested (neutral, motivating, simple)
+- [ ] Step 6: Tags assigned (3-7 standard CP tags)
+- [ ] Step 7: Output validated against architect_spec.json schema
+- [ ] Step 8: Self-review against quality criteria and anti-patterns
+
+If any checkbox is unchecked, go back and complete it before outputting.
+
+## Model Recommendations
+
+For best results with this prompt:
+- **Best:** Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro — strong reasoning and instruction following
+- **Good:** Claude 3 Haiku, GPT-4-turbo — capable but may need more retries
+- **Acceptable:** GPT-3.5-turbo — may produce lower quality output, use with extra review
+- **Not recommended:** Models < 7B parameters — insufficient reasoning capability for this task
+
+---
+
 ## Final Instructions
 
 1. Read the input parameters carefully. Apply defaults for any missing parameters.
