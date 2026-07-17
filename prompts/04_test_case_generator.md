@@ -820,3 +820,99 @@ Your test suite MUST meet ALL of the following criteria. If any criterion is not
 ### Anti-Pattern 8: Redundant Tests
 **Symptom:** Multiple tests that are trivially equivalent (same structure, just different numbers).
 **Fix:** Each test should cover a DISTINCT scenario. If two tests exercise the same code path for the same reason, merge or replace one.
+
+---
+
+## Iron Laws of Test Case Generation
+
+> **NO TEST SUITE WITHOUT COVERING EVERY WRONG APPROACH FROM THE SOLUTION. If the solution lists N wrong approaches, you need at least N adversarial test cases.**
+
+This is non-negotiable. The solution author identified specific ways solvers will fail. Your job is to verify that those failures are caught. If you skip even one wrong approach, your test suite has a hole — and a clever but incorrect solution will pass.
+
+---
+
+## Common Rationalizations (and Why They're Wrong)
+
+| Excuse | Reality |
+|---|---|
+| "10 test cases is enough" | More is better. Aim for 15+. Edge cases are infinite. |
+| "The sample tests cover the basics" | Samples illustrate. Tests verify. They serve different purposes. |
+| "This wrong approach is unlikely" | If the solution listed it, someone WILL try it. Test against it. |
+| "Random stress tests are sufficient" | Random tests miss structured adversarial inputs. Add targeted tests. |
+| "The edge case is handled by the algorithm" | If it's not in the test suite, it's not verified. Add it. |
+| "I'll just copy the sample tests" | Samples are public. Tests include hidden adversarial cases. |
+
+If you catch yourself thinking any of these, stop. Re-read the Iron Law. Then go generate the missing tests.
+
+---
+
+## Hard Gate
+
+<HARD-GATE>You MUST produce at least 10 test cases. You MUST have at least one test per wrong approach listed in the solution. You MUST cover all edge case categories for the problem type (from the taxonomy). You MUST include a stress test configuration. Missing any of these makes your output INVALID.</HARD-GATE>
+
+Before finalizing your output, verify ALL four conditions. If any one fails, go back and fix it. Do not submit an incomplete test suite.
+
+---
+
+## Red Flags — Stop and Re-evaluate
+
+If you notice yourself thinking any of these, you are on the wrong track:
+
+- **"These tests look comprehensive"** → Check: did you cover EVERY wrong approach? Every edge case category?
+- **"The sample tests are good enough"** → Samples are for illustration. You need adversarial tests too.
+- **"This edge case won't appear in practice"** → If it's valid input, it can appear. Test it.
+- **"I'll skip the coverage report"** → The report proves completeness. Write it.
+
+Red flags mean you are rationalizing laziness. Go back to the Iron Law and the taxonomy. Fill the gaps.
+
+---
+
+## Escalation Protocol
+
+If you cannot generate a required test (e.g., you cannot compute the expected output for an adversarial case, or a wrong approach is too vague to design a test against), use the **NEEDS_CONTEXT** format to escalate:
+
+```
+NEEDS_CONTEXT: [describe what information is missing and why you cannot proceed]
+```
+
+Do NOT skip the test silently. Do NOT fabricate an expected output you are unsure about. Escalate.
+
+---
+
+## Good vs. Bad Test Examples
+
+### ❌ Bad Test
+
+```json
+{
+  "id": "edge_3",
+  "category": "edge_case",
+  "input": "1\n5\n1 2 3 4 5",
+  "expected_output": "9",
+  "purpose": "Tests basic functionality."
+}
+```
+
+**Problems:**
+- Purpose is vague — "Tests basic functionality" tells you nothing.
+- No explanation of what edge case this is or why it matters.
+- No connection to the edge case taxonomy.
+- No indication of what wrong approach this would catch.
+
+### ✅ Good Test
+
+```json
+{
+  "id": "edge_3",
+  "category": "edge_case",
+  "input": "1\n5\n1 2 3 4 5",
+  "expected_output": "9",
+  "purpose": "Strictly increasing array (taxonomy §1.2 Size-Based). The optimal subarray is the full array. Tests whether the algorithm correctly handles sorted input where every extension is beneficial. A greedy approach that resets too aggressively would miss the full-array optimum."
+}
+```
+
+**Why this is better:**
+- Purpose names the taxonomy category (§1.2 Size-Based: strictly increasing).
+- Explains what the test verifies (full-array optimum on sorted input).
+- Identifies which wrong approach it would catch (overly aggressive greedy reset).
+- Clear, specific, and actionable.
