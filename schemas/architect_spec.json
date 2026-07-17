@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Architect Spec",
+  "description": "Output of Agent 1 (Problem Architect). Blueprint for problem generation.",
+  "type": "object",
+  "required": [
+    "domain",
+    "topic",
+    "subtopic",
+    "difficulty",
+    "learning_objective",
+    "prerequisites",
+    "core_concept",
+    "tags",
+    "constraint_hints",
+    "story_direction"
+  ],
+  "properties": {
+    "domain": {
+      "type": "string",
+      "enum": ["dsa", "language_learning", "competitive_programming"]
+    },
+    "topic": {
+      "type": "string"
+    },
+    "subtopic": {
+      "type": "string"
+    },
+    "difficulty": {
+      "type": "object",
+      "required": ["codeforces_rating", "tier", "bloom_level"],
+      "properties": {
+        "codeforces_rating": {
+          "type": "integer",
+          "minimum": 800,
+          "maximum": 3500
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["easy", "medium", "hard", "expert"]
+        },
+        "bloom_level": {
+          "type": "string",
+          "enum": ["remember", "understand", "apply", "analyze", "evaluate", "create"]
+        }
+      }
+    },
+    "learning_objective": {
+      "type": "string"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "core_concept": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "constraint_hints": {
+      "type": "object",
+      "required": ["n_range", "expected_complexity", "time_limit_seconds"],
+      "properties": {
+        "n_range": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "expected_complexity": {
+          "type": "string"
+        },
+        "time_limit_seconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "story_direction": {
+      "type": "string"
+    }
+  }
+}

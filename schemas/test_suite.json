@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Suite",
+  "description": "Output of Agent 4 (Test Case Generator). Comprehensive test cases.",
+  "type": "object",
+  "required": [
+    "test_cases",
+    "stress_test_config",
+    "coverage_report"
+  ],
+  "properties": {
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "input", "expected_output", "purpose"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["basic", "edge_case", "adversarial", "boundary"]
+          },
+          "input": {
+            "type": "string"
+          },
+          "expected_output": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 10
+    },
+    "stress_test_config": {
+      "type": "object",
+      "required": ["random_tests", "n_range", "comparison"],
+      "properties": {
+        "random_tests": {
+          "type": "integer",
+          "minimum": 100
+        },
+        "n_range": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "comparison": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage_report": {
+      "type": "object",
+      "required": ["edge_cases_covered", "wrong_approaches_tested"],
+      "properties": {
+        "edge_cases_covered": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "wrong_approaches_tested": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

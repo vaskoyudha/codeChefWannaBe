@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Review Verdict",
+  "description": "Output of Agent 5 (Quality Reviewer). Adversarial review result.",
+  "type": "object",
+  "required": [
+    "verdict",
+    "shield_check",
+    "sword_check",
+    "revision_target",
+    "specific_feedback",
+    "round",
+    "max_rounds"
+  ],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["APPROVED", "REVISION"]
+    },
+    "shield_check": {
+      "type": "object",
+      "properties": {
+        "statement_clarity": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "constraint_solution_alignment": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "solution_correctness": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "test_coverage": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "pedagogical_value": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "difficulty_calibration": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "story_quality": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "sample_test_quality": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "subtask_design": {
+          "$ref": "#/definitions/scored_check"
+        },
+        "overall_elegance": {
+          "$ref": "#/definitions/scored_check"
+        }
+      }
+    },
+    "sword_check": {
+      "type": "object",
+      "properties": {
+        "ambiguity_found": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unsolvable_cases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weak_test_coverage": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "wrong_approaches_that_pass": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "revision_target": {
+      "type": "string",
+      "enum": ["problem_writer", "solution_engineer", "test_generator"]
+    },
+    "specific_feedback": {
+      "type": "string"
+    },
+    "round": {
+      "type": "integer"
+    },
+    "max_rounds": {
+      "type": "integer"
+    }
+  },
+  "definitions": {
+    "scored_check": {
+      "type": "object",
+      "required": ["score", "issues"],
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

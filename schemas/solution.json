@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Solution",
+  "description": "Output of Agent 3 (Solution Engineer). Reference solution with analysis.",
+  "type": "object",
+  "required": [
+    "approach",
+    "pseudocode",
+    "time_complexity",
+    "space_complexity",
+    "correctness_argument",
+    "brute_force_solution",
+    "common_wrong_approaches",
+    "solvability_verdict"
+  ],
+  "properties": {
+    "approach": {
+      "type": "string"
+    },
+    "pseudocode": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "time_complexity": {
+      "type": "string"
+    },
+    "space_complexity": {
+      "type": "string"
+    },
+    "correctness_argument": {
+      "type": "string"
+    },
+    "brute_force_solution": {
+      "type": "object",
+      "required": ["approach", "time_complexity", "use"],
+      "properties": {
+        "approach": {
+          "type": "string"
+        },
+        "time_complexity": {
+          "type": "string"
+        },
+        "use": {
+          "type": "string"
+        }
+      }
+    },
+    "common_wrong_approaches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["approach", "why_wrong"],
+        "properties": {
+          "approach": {
+            "type": "string"
+          },
+          "why_wrong": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "solvability_verdict": {
+      "type": "string",
+      "enum": ["success", "SOLVABILITY_FAILURE"]
+    },
+    "failure_reason": {
+      "type": "string"
+    }
+  }
+}

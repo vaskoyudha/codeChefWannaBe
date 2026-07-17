@@ -1,0 +1,158 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Final Problem",
+  "description": "Final output of the pipeline. Complete problem with all sections.",
+  "type": "object",
+  "required": [
+    "metadata",
+    "problem",
+    "solution",
+    "test_suite",
+    "editorial",
+    "quality_report"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": [
+        "id",
+        "domain",
+        "topic",
+        "subtopic",
+        "difficulty",
+        "tags",
+        "bloom_level",
+        "prerequisites",
+        "generated_at",
+        "pipeline_rounds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "subtopic": {
+          "type": "string"
+        },
+        "difficulty": {
+          "type": "object",
+          "properties": {
+            "codeforces_rating": {
+              "type": "integer"
+            },
+            "tier": {
+              "type": "string"
+            }
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bloom_level": {
+          "type": "string"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "pipeline_rounds": {
+          "type": "integer"
+        }
+      }
+    },
+    "problem": {
+      "type": "object"
+    },
+    "solution": {
+      "type": "object"
+    },
+    "test_suite": {
+      "type": "object"
+    },
+    "editorial": {
+      "type": "object",
+      "required": [
+        "hints",
+        "brute_force_explanation",
+        "optimal_solution_walkthrough",
+        "complexity_analysis",
+        "alternative_approaches",
+        "common_mistakes"
+      ],
+      "properties": {
+        "hints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "brute_force_explanation": {
+          "type": "string"
+        },
+        "optimal_solution_walkthrough": {
+          "type": "string"
+        },
+        "complexity_analysis": {
+          "type": "string"
+        },
+        "alternative_approaches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "common_mistakes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "quality_report": {
+      "type": "object",
+      "required": [
+        "shield_scores",
+        "sword_findings",
+        "pipeline_rounds",
+        "warnings"
+      ],
+      "properties": {
+        "shield_scores": {
+          "type": "object"
+        },
+        "sword_findings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pipeline_rounds": {
+          "type": "integer"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

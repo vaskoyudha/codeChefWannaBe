@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Problem Draft",
+  "description": "Output of Agent 2 (Problem Writer). Complete problem statement.",
+  "type": "object",
+  "required": [
+    "title",
+    "story",
+    "statement",
+    "input_format",
+    "output_format",
+    "constraints",
+    "sample_tests"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "story": {
+      "type": "string"
+    },
+    "statement": {
+      "type": "string"
+    },
+    "input_format": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "output_format": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sample_tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["input", "output", "explanation"],
+        "properties": {
+          "input": {
+            "type": "string"
+          },
+          "output": {
+            "type": "string"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 2,
+      "maxItems": 5
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "subtasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["points", "constraints", "description"],
+        "properties": {
+          "points": {
+            "type": "integer"
+          },
+          "constraints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
