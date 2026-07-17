@@ -8,7 +8,14 @@ You do NOT generate problem content yourself. You route inputs and outputs betwe
 
 ## Pipeline Overview
 
-The pipeline has **6 agent steps** and **2 validation gates**. Every step depends on the output of the previous step. Gates allow feedback loops when validation fails.
+The pipeline supports two modes:
+
+1. **Single Problem Mode** (default): Generates one complete problem through the full pipeline.
+2. **Set Generation Mode**: Generates a balanced set of problems following distribution ratios from `knowledge/problem_set_distribution_guide.md`.
+
+### Single Problem Pipeline
+
+The single-problem pipeline has **6 agent steps** and **2 validation gates**. Every step depends on the output of the previous step. Gates allow feedback loops when validation fails.
 
 ```
 User Parameters
@@ -83,6 +90,47 @@ User Parameters
 └─────────────────────────┘
 ```
 
+### Set Generation Pipeline
+
+When `mode` is `"set"`, the orchestrator generates a balanced problem set. Each problem in the set goes through the full single-problem pipeline independently, but the orchestrator manages set-level constraints.
+
+```
+User Parameters (mode=set, level, set_size, distribution)
+      │
+      ▼
+┌─────────────────────────────────────────┐
+│ Step 0: Agent 1 (Set Mode)              │
+│ Generates set_metadata + N architect    │──→ set_plan.json
+│ specs with distribution validation      │    (N architect_spec.json)
+└─────────────────────────────────────────┘
+      │
+      ▼
+┌─────────────────────────────────────────┐
+│ For each problem in set (parallel-safe):│
+│                                         │
+│   architect_spec → Agent 2 → Agent 3    │
+│     → Gate 1 → Agent 4 → Agent 5       │
+│     → Gate 2 → Agent 6 → Assembly       │
+│                                         │
+│   Each problem is a full pipeline run.  │
+│   Problems are independent.             │
+└─────────────────────────────────────────┘
+      │
+      ▼
+┌─────────────────────────────────────────┐
+│ Step Final: Set Assembly                │
+│ Combine all final_problem.json files    │──→ final_problem_set.json
+│ Validate set-level distribution         │
+└─────────────────────────────────────────┘
+```
+
+**Set generation rules:**
+1. **Step 0:** Agent 1 produces N architect specs with set_metadata. Validate distribution ratios match target (±5% tolerance).
+2. **Independent pipelines:** Each problem runs the full single-problem pipeline (Steps 1–7). Problems are independent — a failure in one does not affect others.
+3. **Partial set tolerance:** If a problem fails after max retries, mark it as `"status": "failed"` in the set output. The set is still valid if ≥ 80% of problems succeeded.
+4. **Set assembly:** Combine all successful `final_problem.json` files into `final_problem_set.json` with set-level metadata.
+5. **Distribution validation:** After assembly, verify the final set's actual distribution matches the target. If too many problems failed in one category, flag a warning.
+
 ---
 
 ## Agent Definitions
@@ -90,9 +138,9 @@ User Parameters
 ### Agent 1: Problem Architect
 
 - **Prompt file:** `prompts/01_problem_architect.md`
-- **Input:** User parameters (domain, topic, subtopic, difficulty_range, bloom_target, language_focus, special_requirements, target_audience).
-- **Output:** `architect_spec.json`
-- **Role:** Designs the problem blueprint — core concept, difficulty, prerequisites, constraints, story direction.
+- **Input:** User parameters (domain, topic, subtopic, difficulty_range, bloom_target, language_focus, special_requirements, target_audience, mode, level, set_size, distribution, topic_preferences).
+- **Output:** `architect_spec.json` (single mode) or set plan with N specs (set mode).
+- **Role:** Designs the problem blueprint — core concept, difficulty, prerequisites, constraints, story direction. In set mode, designs a complete problem set with distribution validation.
 
 ### Agent 2: Problem Writer
 
@@ -402,6 +450,48 @@ After all 6 agents have produced approved outputs, assemble `final_problem.json`
 7. **`generated_at`** is the current ISO 8601 timestamp at assembly time.
 8. **`pipeline_rounds`** counts how many Gate 2 revision rounds were executed (0 if approved on first round, 1 if one revision, 2 if force-approved after max rounds).
 9. **`id`** is generated as `prob_<domain>_<topic>_<timestamp>` (e.g., `prob_dsa_arrays_20250117T120000Z`).
+
+### Set Assembly (mode=set)
+
+After all problems in the set have been individually assembled into `final_problem.json`, combine them into `final_problem_set.json`:
+
+```json
+{
+  "set_metadata": {
+    "id": "probset_<level>_<timestamp>",
+    "level": "specialist",
+    "set_size": 5,
+    "successful_count": 5,
+    "failed_count": 0,
+    "distribution_target": {"comfortable": 0.4, "challenging": 0.35, "stretch": 0.25},
+    "distribution_actual": {"comfortable": 0.4, "challenging": 0.4, "stretch": 0.2},
+    "topic_groups_covered": ["foundations", "algorithms", "graphs", "dp"],
+    "generated_at": "<ISO 8601 timestamp>"
+  },
+  "problems": [
+    {
+      "slot": 1,
+      "category": "comfortable",
+      "status": "success",
+      "problem": { /* full final_problem.json */ }
+    },
+    {
+      "slot": 2,
+      "category": "comfortable",
+      "status": "success",
+      "problem": { /* full final_problem.json */ }
+    }
+  ],
+  "warnings": []
+}
+```
+
+**Set assembly rules:**
+1. Each problem in `problems` includes its slot number, category (from set_metadata), status (`"success"` or `"failed"`), and the full `final_problem.json`.
+2. Failed problems have `"problem": null` and a `"failure_reason"` field.
+3. `distribution_actual` is computed from successful problems only.
+4. If `successful_count / set_size < 0.8`, add a warning: `"Set generation partially failed — only X/Y problems succeeded."`
+5. If `distribution_actual` deviates from `distribution_target` by more than 10% in any category, add a warning about distribution skew.
 
 ---
 

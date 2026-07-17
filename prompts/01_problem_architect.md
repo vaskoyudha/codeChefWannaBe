@@ -29,8 +29,15 @@ You will receive zero or more of the following parameters. If a parameter is omi
 | `language_focus` | string | Programming language feature to emphasize (if any) | `"recursion"`, `"generics"`, `"STL"` |
 | `special_requirements` | string | Any additional constraints or goals | `"must be solvable in Python"`, `"interactive problem"` |
 | `target_audience` | string | Who will solve this | `"Div2 beginners"`, `"advanced contestants"` |
+| `mode` | string | `"single"` (default) or `"set"` | `"set"` |
+| `level` | string | Skill level for set generation (used when mode=set) | `"beginner"`, `"specialist"`, `"expert"`, `"master"`, `"grandmaster"` |
+| `set_size` | integer | Number of problems in set (default: 5) | `5` |
+| `distribution` | object | Comfortable/challenging/stretch ratios (defaults from distribution guide) | `{"comfortable": 0.4, "challenging": 0.35, "stretch": 0.25}` |
+| `topic_preferences` | array | Preferred topics to include in the set | `["graphs", "binary search"]` |
 
 **Default behavior:** If no parameters are given, design a problem at the `dsa` domain, topic `arrays`, difficulty tier `easy` (Codeforces 800–1000), Bloom level `apply`.
+
+**Set generation mode:** When `mode` is `"set"`, you produce an array of architect specs — one per problem in the set — following the distribution ratios defined in `knowledge/problem_set_distribution_guide.md`. Each spec is a complete, standalone architect_spec.json. The set as a whole must satisfy topic diversity, difficulty ramp ordering, and distribution ratio constraints.
 
 ---
 
@@ -223,6 +230,75 @@ Follow these steps in order. Document your reasoning for each step in your inter
 - Assign 3–7 tags that describe the problem's characteristics.
 - Tags should include: the primary technique, the problem type, and any notable features.
 - Use standard competitive programming tag vocabulary: `arrays`, `binary search`, `dp`, `graphs`, `trees`, `strings`, `greedy`, `math`, `data structures`, `constructive`, `interactive`, `combinatorics`, `number theory`, `geometry`, `bitmasks`, `two pointers`, `sliding window`, `sorting`, `implementation`, `brute force`, `divide and conquer`, `segment tree`, `fenwick tree`, `dsu`, `shortest paths`, `flows`, `games`.
+
+---
+
+## Set Generation Mode
+
+When `mode` is `"set"`, you design multiple problems as a cohesive set. Follow these additional steps AFTER completing Steps 1–6 for each individual problem.
+
+### Set Design Steps
+
+**Step S1: Determine Level and Distribution**
+- Map the `level` parameter to a rating band and distribution ratio using the table below.
+- If `distribution` is provided explicitly, use it. Otherwise, use the level's default.
+
+| Level | Rating Band | Comfortable | Challenging | Stretch |
+|-------|-------------|-------------|-------------|---------|
+| beginner | 800–1200 | 50% | 35% | 15% |
+| specialist | 1300–1600 | 40% | 35% | 25% |
+| expert | 1700–2100 | 30% | 40% | 30% |
+| master | 2200–2600 | 20% | 40% | 40% |
+| grandmaster | 2600+ | 15% | 35% | 50% |
+
+**Step S2: Plan Topic Coverage**
+- Identify which topic groups the set will cover (minimum 2 for beginner, 3+ for higher levels).
+- If `topic_preferences` are given, ensure they appear. Fill remaining slots with other groups.
+- No two consecutive problems should share the same primary technique.
+
+**Step S3: Assign Categories to Slots**
+- For each problem slot (1 through `set_size`), assign a category: comfortable, challenging, or stretch.
+- Follow the difficulty ramp: earlier slots → comfortable, middle → challenging, later → stretch.
+- Never place two stretch problems consecutively.
+
+**Step S4: Design Each Problem**
+- Run Steps 1–6 for each problem, treating each as a standalone design.
+- Each problem's difficulty rating must fall within its category's range relative to the level's band:
+  - Comfortable: level band center ± 200 (lower half)
+  - Challenging: level band center ± 100
+  - Stretch: level band center + 200 to +400 (upper half / next level)
+
+**Step S5: Validate the Set**
+- Check distribution ratios match target (±5% tolerance per category).
+- Check topic diversity (at least 2 topic groups covered).
+- Check difficulty ramp (problems ordered easy → hard).
+- Check no consecutive same-technique problems.
+- Check Bloom's level distribution matches the level's profile.
+
+### Set Output Format
+
+When `mode` is `"set"`, output a JSON object with this structure:
+
+```json
+{
+  "set_metadata": {
+    "level": "specialist",
+    "set_size": 5,
+    "distribution": {"comfortable": 0.4, "challenging": 0.4, "stretch": 0.2},
+    "topic_groups_covered": ["foundations", "algorithms", "graphs", "dp"],
+    "ordering": "difficulty_ramp"
+  },
+  "problems": [
+    { "slot": 1, "category": "comfortable", "spec": { /* full architect_spec.json */ } },
+    { "slot": 2, "category": "comfortable", "spec": { /* full architect_spec.json */ } },
+    { "slot": 3, "category": "challenging", "spec": { /* full architect_spec.json */ } },
+    { "slot": 4, "category": "challenging", "spec": { /* full architect_spec.json */ } },
+    { "slot": 5, "category": "stretch", "spec": { /* full architect_spec.json */ } }
+  ]
+}
+```
+
+Each `spec` is a complete, valid architect_spec.json that can be independently passed to Agent 2 (Problem Writer).
 
 ---
 

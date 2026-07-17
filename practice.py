@@ -97,6 +97,26 @@ def load_problem(path):
     return data
 
 
+def load_problem_set(path):
+    """Load and validate a final_problem_set.json file."""
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(error(f"File not found: {path}"))
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(error(f"Invalid JSON: {e}"))
+        sys.exit(1)
+    
+    # Validate required sections
+    if "set_metadata" not in data or "problems" not in data:
+        print(error("Not a valid problem set file (missing set_metadata or problems)"))
+        sys.exit(1)
+    
+    return data
+
+
 # ─── Display Functions ─────────────────────────────────────────────────────────
 
 def display_problem(data):
@@ -400,6 +420,92 @@ def run_solution(executable, language, input_text, timeout=10):
         return None, 0, f"Error: {e}"
 
 
+def display_problem_set(data):
+    """Display a problem set overview."""
+    meta = data["set_metadata"]
+    problems = data["problems"]
+    
+    width = 70
+    print()
+    print(c("═" * width, Colors.CYAN))
+    print(c(f"  Problem Set — {meta.get('level', 'unknown').upper()}", Colors.BOLD + Colors.CYAN))
+    print(c("═" * width, Colors.CYAN))
+    print()
+    
+    # Set metadata
+    level = meta.get("level", "unknown").upper()
+    set_size = meta.get("set_size", len(problems))
+    successful = meta.get("successful_count", sum(1 for p in problems if p.get("status") == "success"))
+    
+    dist_target = meta.get("distribution_target", {})
+    dist_actual = meta.get("distribution_actual", {})
+    topics = meta.get("topic_groups_covered", [])
+    
+    print(f"  {bold('Level:')} {c(level, Colors.YELLOW)}")
+    print(f"  {bold('Problems:')} {successful}/{set_size} successful")
+    print(f"  {bold('Topics:')} {', '.join(topics) if topics else 'N/A'}")
+    print()
+    
+    # Distribution bar
+    print(f"  {bold('Distribution (target → actual):')}")
+    for cat in ["comfortable", "challenging", "stretch"]:
+        target = dist_target.get(cat, 0)
+        actual = dist_actual.get(cat, 0)
+        target_pct = f"{target*100:.0f}%"
+        actual_pct = f"{actual*100:.0f}%"
+        cat_color = {"comfortable": Colors.GREEN, "challenging": Colors.YELLOW, "stretch": Colors.RED}.get(cat, Colors.WHITE)
+        bar_len = 30
+        filled = int(actual * bar_len)
+        bar = c("█" * filled, cat_color) + c("░" * (bar_len - filled), Colors.DIM)
+        print(f"    {cat:12s} {bar} {actual_pct} (target: {target_pct})")
+    print()
+    
+    # Problem list
+    print(c("─" * width, Colors.DIM))
+    print(f"  {bold('Problems:')}")
+    print(c("─" * width, Colors.DIM))
+    print()
+    
+    for entry in problems:
+        slot = entry.get("slot", "?")
+        category = entry.get("category", "?")
+        status = entry.get("status", "?")
+        
+        cat_color = {"comfortable": Colors.GREEN, "challenging": Colors.YELLOW, "stretch": Colors.RED}.get(category, Colors.WHITE)
+        status_icon = c("✓", Colors.GREEN) if status == "success" else c("✗", Colors.RED)
+        
+        if status == "success" and entry.get("problem"):
+            prob = entry["problem"]
+            prob_meta = prob.get("metadata", {})
+            prob_data = prob.get("problem", {})
+            title = prob_data.get("title", "Untitled")
+            rating = prob_meta.get("difficulty", {}).get("codeforces_rating", "?")
+            topic = prob_meta.get("topic", "?")
+            bloom = prob_meta.get("bloom_level", "?")
+            
+            print(f"  {status_icon} {c(f'Problem {slot}', Colors.BOLD)} — {title}")
+            print(f"     {c(category, cat_color)} | CF {rating} | {topic} | Bloom: {bloom}")
+        else:
+            reason = entry.get("failure_reason", "Unknown error")
+            print(f"  {status_icon} {c(f'Problem {slot}', Colors.BOLD)} — {c('FAILED', Colors.RED)}")
+            print(f"     {dim(reason[:80])}")
+        print()
+    
+    # Warnings
+    warnings = data.get("warnings", [])
+    if warnings:
+        print(c("─" * width, Colors.DIM))
+        print(f"  {bold('Warnings:')}")
+        for w in warnings:
+            print(f"  {c('⚠', Colors.YELLOW)} {w}")
+        print()
+    
+    print(c("═" * width, Colors.CYAN))
+    print()
+    print(dim("  Use --problem N to view/test a specific problem from the set."))
+    print()
+
+
 def normalize_output(text):
     """Normalize output for comparison (strip whitespace, normalize line endings)."""
     if text is None:
@@ -567,19 +673,63 @@ Examples:
   python practice.py problem.json --hints          # Show progressive hints
   python practice.py problem.json --editorial      # Show the editorial
   python practice.py problem.json --all            # Show everything
+  python practice.py set.json --set                # View a problem set overview
+  python practice.py set.json --set --problem 3    # View problem 3 from a set
+  python practice.py set.json --set --problem 3 --test sol.py  # Test solution on problem 3
         """
     )
     
-    parser.add_argument("problem", help="Path to final_problem.json")
+    parser.add_argument("problem", help="Path to final_problem.json or final_problem_set.json")
     parser.add_argument("--test", "-t", metavar="SOLUTION", help="Path to your solution file (.py, .cpp, .java, etc.)")
     parser.add_argument("--hints", action="store_true", help="Show progressive hints")
     parser.add_argument("--editorial", "-e", action="store_true", help="Show the editorial")
     parser.add_argument("--all", "-a", action="store_true", help="Show problem + hints + editorial")
     parser.add_argument("--json", action="store_true", help="Output raw JSON (for piping)")
+    parser.add_argument("--set", "-s", action="store_true", help="Treat input as a problem set file")
+    parser.add_argument("--problem-num", "-p", type=int, metavar="N", help="Select problem N from a set (1-indexed)")
     
     args = parser.parse_args()
     
-    # Load problem
+    # Set mode
+    if args.set:
+        data = load_problem_set(args.problem)
+        
+        if args.json:
+            print(json.dumps(data, indent=2))
+            return
+        
+        # If --problem-num specified, extract that problem and treat as single
+        if args.problem_num:
+            problems = data["problems"]
+            if args.problem_num < 1 or args.problem_num > len(problems):
+                print(error(f"Problem {args.problem_num} out of range (1-{len(problems)})"))
+                sys.exit(1)
+            entry = problems[args.problem_num - 1]
+            if entry.get("status") != "success" or not entry.get("problem"):
+                print(error(f"Problem {args.problem_num} failed during generation"))
+                sys.exit(1)
+            single = entry["problem"]
+            
+            if args.test:
+                display_problem(single)
+                test_solution(single, args.test)
+            elif args.all:
+                display_problem(single)
+                display_hints(single)
+                display_editorial(single)
+            elif args.hints:
+                display_hints(single)
+            elif args.editorial:
+                display_editorial(single)
+            else:
+                display_problem(single)
+            return
+        
+        # Default: show set overview
+        display_problem_set(data)
+        return
+    
+    # Single problem mode
     data = load_problem(args.problem)
     
     # Raw JSON mode
