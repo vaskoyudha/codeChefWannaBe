@@ -1,0 +1,192 @@
+{
+  "metadata": {
+    "id": "SW-001",
+    "domain": "dsa",
+    "topic": "sliding window",
+    "subtopic": "variable-size sliding window",
+    "difficulty": {
+      "codeforces_rating": 1200,
+      "tier": "easy"
+    },
+    "tags": [
+      "sliding window",
+      "two pointers",
+      "arrays",
+      "subarray",
+      "implementation"
+    ],
+    "bloom_level": "apply",
+    "prerequisites": [
+      "array traversal and index manipulation",
+      "prefix sums and subarray sum computation",
+      "understanding of O(N) vs O(N²) complexity",
+      "basic two-pointer technique",
+      "handling of 64-bit integer sums"
+    ],
+    "generated_at": "2026-07-17T00:00:00Z",
+    "pipeline_rounds": 1
+  },
+  "problem": {
+    "title": "Festival Lights",
+    "story": "The town of Lumiville is preparing for its annual festival. The main parade route has N lanterns arranged in a straight line, numbered 1 to N. Each lantern i consumes Pᵢ units of electrical power. The town has a single portable generator with a power capacity of S units. The generator can power any contiguous segment of lanterns, but the total power consumption of all lit lanterns must not exceed S. The festival committee wants to illuminate as many consecutive lanterns as possible to create the most impressive visual display.",
+    "statement": "You are given N lanterns with power consumptions P₁, P₂, ..., Pₙ and a generator with capacity S. Find the maximum number of consecutive lanterns that can be simultaneously powered such that the total power consumption does not exceed S.\n\nFormally, find the maximum value of (r − l + 1) such that 1 ≤ l ≤ r ≤ N and P_l + P_{l+1} + ... + P_r ≤ S. If no such pair (l, r) exists (i.e., even a single lantern exceeds S), output 0.",
+    "input_format": {
+      "line_1": "Two space-separated integers N and S — the number of lanterns and the generator's power capacity.",
+      "line_2": "N space-separated integers P₁, P₂, ..., Pₙ — the power consumption of each lantern."
+    },
+    "output_format": "Print a single integer — the maximum number of consecutive lanterns whose total power consumption does not exceed S.",
+    "constraints": [
+      "1 ≤ N ≤ 10⁵",
+      "1 ≤ Pᵢ ≤ 10⁹",
+      "1 ≤ S ≤ 10¹⁴",
+      "Time limit: 1 second",
+      "Memory limit: 256 MB"
+    ],
+    "sample_tests": [
+      {
+        "input": "5 6\n3 1 2 4 1",
+        "output": "3",
+        "explanation": "We need the longest contiguous subarray with sum ≤ 6. The subarray [3, 1, 2] (lanterns 1–3) has sum 6 ≤ 6, giving length 3. All subarrays of length 4 have sums exceeding 6: [3,1,2,4] = 10, [1,2,4,1] = 8. So the answer is 3."
+      },
+      {
+        "input": "5 4\n5 2 8 1 1",
+        "output": "2",
+        "explanation": "We need the longest contiguous subarray with sum ≤ 4. Lantern 1 (power 5) and lantern 3 (power 8) individually exceed S = 4, so they cannot be included. The valid segments are: [2] (length 1), [1, 1] (lanterns 4–5, sum 2, length 2), and [2] alone (length 1). The maximum length is 2, from lanterns 4–5 with sum 2 ≤ 4."
+      },
+      {
+        "input": "5 5\n1 1 1 1 1",
+        "output": "5",
+        "explanation": "All lanterns have power consumption 1. The total sum of all 5 lanterns is 5 ≤ 5 = S. Since all lanterns can be powered simultaneously, the answer is 5."
+      }
+    ],
+    "notes": [
+      "The sum of power consumptions can be as large as N × max(Pᵢ) = 10¹⁴, which exceeds the range of 32-bit integers. Use 64-bit integer types for sum computations.",
+      "All power consumptions are positive (Pᵢ ≥ 1). This is essential for the sliding window approach to work correctly."
+    ],
+    "subtasks": [
+      {
+        "points": 30,
+        "constraints": [
+          "1 ≤ N ≤ 1000",
+          "1 ≤ Pᵢ ≤ 1000",
+          "1 ≤ S ≤ 10⁶"
+        ],
+        "description": "Small constraints — O(N²) approaches are feasible."
+      },
+      {
+        "points": 70,
+        "constraints": [
+          "1 ≤ N ≤ 10⁵",
+          "1 ≤ Pᵢ ≤ 10⁹",
+          "1 ≤ S ≤ 10¹⁴"
+        ],
+        "description": "Full constraints — requires an O(N) approach."
+      }
+    ]
+  },
+  "solution": {
+    "approach": "Variable-size sliding window (two pointers). Maintain a window [left, right] and its sum. Expand by moving right forward, adding P[right] to the running sum. When the sum exceeds S, shrink from the left by incrementing left and subtracting P[left] until sum ≤ S. Track the maximum window size throughout.",
+    "pseudocode": [
+      "function solve():",
+      "    read N, S",
+      "    read array P of N integers",
+      "",
+      "    left = 0",
+      "    current_sum = 0",
+      "    max_len = 0",
+      "",
+      "    for right = 0 to N - 1:",
+      "        current_sum = current_sum + P[right]",
+      "        while current_sum > S:",
+      "            current_sum = current_sum - P[left]",
+      "            left = left + 1",
+      "        max_len = max(max_len, right - left + 1)",
+      "",
+      "    print max_len"
+    ],
+    "time_complexity": "O(N) — both pointers traverse the array once. Each element is added and removed at most once, giving at most 2N pointer movements total.",
+    "space_complexity": "O(N) — to store the array of N power consumptions. The sliding window uses O(1) additional variables.",
+    "correctness_argument": "Since all Pᵢ > 0, the window sum is monotonically increasing when expanding right and monotonically decreasing when shrinking left. For each right endpoint, the algorithm finds the smallest valid left endpoint f(right). Because f is non-decreasing (removing elements from the left of a valid window for r cannot make it invalid for r+1 — wait, the other direction: any l < f(r) that was invalid for r is also invalid for r+1 since P[r+1] > 0 makes the sum even larger), the left pointer never needs to move backward. The maximum window size over all right endpoints is the answer.",
+    "solvability_verdict": "success"
+  },
+  "test_suite": {
+    "test_cases": [
+      {"id": "basic_1", "category": "basic", "input": "5 6\n3 1 2 4 1", "expected_output": "3", "purpose": "Sample test 1: basic window [3,1,2] of length 3."},
+      {"id": "basic_2", "category": "basic", "input": "5 4\n5 2 8 1 1", "expected_output": "2", "purpose": "Sample test 2: large elements block long windows."},
+      {"id": "basic_3", "category": "basic", "input": "5 5\n1 1 1 1 1", "expected_output": "5", "purpose": "Sample test 3: all elements fit."},
+      {"id": "basic_4", "category": "basic", "input": "6 9\n2 3 1 4 2 1", "expected_output": "4", "purpose": "Moderate case, window [4,2,1] extends to length 4."},
+      {"id": "edge_1", "category": "edge_case", "input": "1 5\n10", "expected_output": "0", "purpose": "Single element exceeds S."},
+      {"id": "edge_2", "category": "edge_case", "input": "1 10\n5", "expected_output": "1", "purpose": "Single element within S."},
+      {"id": "edge_3", "category": "edge_case", "input": "5 100\n1 2 3 4 5", "expected_output": "5", "purpose": "S very large, all fit."},
+      {"id": "edge_4", "category": "edge_case", "input": "5 2\n3 5 4 7 6", "expected_output": "0", "purpose": "S smaller than all elements (min=3 > S=2)."},
+      {"id": "edge_5", "category": "edge_case", "input": "5 5\n5 5 5 5 5", "expected_output": "1", "purpose": "Each element equals S."},
+      {"id": "adv_1", "category": "adversarial", "input": "7 10\n1 1 1 100 1 1 1", "expected_output": "3", "purpose": "Large barrier in middle; best window is on one side."},
+      {"id": "adv_2", "category": "adversarial", "input": "5 2\n5 1 5 1 5", "expected_output": "1", "purpose": "Breaks sort-and-pick-smallest approach."},
+      {"id": "adv_3", "category": "adversarial", "input": "8 5\n1 2 1 2 1 2 1 2", "expected_output": "3", "purpose": "Alternating pattern; tests precise window sizing."},
+      {"id": "adv_4", "category": "adversarial", "input": "9 10\n1 1 1 1 1 1 1 1 1000000000", "expected_output": "8", "purpose": "Large element at end acts as barrier."},
+      {"id": "bound_1", "category": "boundary", "input": "5 3000000000\n1000000000 1000000000 1000000000 1000000000 1000000000", "expected_output": "3", "purpose": "All max values, S=3×10⁹, tests 64-bit sums."},
+      {"id": "bound_2", "category": "boundary", "input": "1 2000000000\n1000000000", "expected_output": "1", "purpose": "Single max element, large S."},
+      {"id": "bound_3", "category": "boundary", "input": "10 1000000000\n1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000", "expected_output": "1", "purpose": "All max values, S=10⁹, only one fits."}
+    ],
+    "stress_test_config": {
+      "random_tests": 500,
+      "n_range": [1, 50],
+      "comparison": "Run brute force (enumerate all O(N²) subarrays with prefix sums) and reference solution (sliding window) on each random input. Compare outputs."
+    },
+    "coverage_report": {
+      "edge_cases_covered": [
+        "Single element exceeding S (answer 0)",
+        "Single element within S (answer 1)",
+        "S very large, all elements fit (answer N)",
+        "S smaller than all elements (answer 0)",
+        "Each element equals S exactly (answer 1)",
+        "Large barrier element splitting the array",
+        "Maximum values causing 64-bit sum overflow",
+        "Boundary values with S = 3×10⁹ and elements at 10⁹"
+      ],
+      "wrong_approaches_tested": [
+        "Sort and pick smallest: tested by adv_2",
+        "Greedy from left only: tested by adv_1",
+        "Fixed window size: tested by adv_3"
+      ]
+    }
+  },
+  "editorial": {
+    "hints": [
+      "Hint 1: The problem asks for the longest contiguous subarray with sum ≤ S. Since all power consumptions are positive, think about what happens to the sum as you expand or shrink a window. If you fix the left endpoint and move the right endpoint to the right, does the sum increase or decrease? This monotonicity is the key to an efficient solution.",
+      "Hint 2: When the sum of your current window exceeds S, you do not need to restart the search from scratch. Since all elements are positive, removing an element from the left of the window decreases the sum. So you can 'shrink' the window from the left until the sum is valid again. This gives a two-pointer approach: one pointer for the right end (expanding) and one for the left end (shrinking).",
+      "Hint 3: The crucial observation is that the left pointer never moves backward. Once you have shrunk the window enough for a given right endpoint, advancing the right pointer by one can only increase the sum, so the left pointer for the new right endpoint is at least as far right as the current left pointer. This means each element is added to the window at most once and removed at most once, giving O(N) total time."
+    ],
+    "brute_force_explanation": "The most straightforward approach is to enumerate all possible contiguous subarrays. There are N(N+1)/2 such subarrays (one for each pair (l, r) with l ≤ r). For each subarray, compute the sum and check if it is ≤ S. Track the maximum length among all valid subarrays.\n\nUsing prefix sums, each sum query takes O(1), giving O(N²) total time. With N ≤ 10⁵, this is about 5 × 10⁹ operations, which exceeds the 1-second time limit. However, this approach is feasible for the first subtask (N ≤ 1000), where N²/2 ≈ 5 × 10⁵ operations.\n\nThe bottleneck is that we are checking all O(N²) subarrays independently. Can we avoid redundant work by exploiting the structure of the problem?",
+    "optimal_solution_walkthrough": "The key insight is to use a variable-size sliding window with two pointers. We maintain a window [left, right] and its sum. As we advance right from 0 to N-1, we add P[right] to the sum. If the sum exceeds S, we shrink the window from the left by incrementing left and subtracting P[left] from the sum, repeating until the sum is ≤ S. After each step, we update the answer with the current window size (right - left + 1).\n\nLet us trace this on Sample 1: P = [3, 1, 2, 4, 1], S = 6.\n\n- right=0: sum = 3 ≤ 6. Window [3], length 1. max_len = 1.\n- right=1: sum = 3+1 = 4 ≤ 6. Window [3,1], length 2. max_len = 2.\n- right=2: sum = 4+2 = 6 ≤ 6. Window [3,1,2], length 3. max_len = 3.\n- right=3: sum = 6+4 = 10 > 6. Shrink: remove P[0]=3, sum = 7, left = 1. Still > 6: remove P[1]=1, sum = 6, left = 2. Window [2,4], length 2. max_len = 3.\n- right=4: sum = 6+1 = 7 > 6. Shrink: remove P[2]=2, sum = 5, left = 3. Window [4,1], length 2. max_len = 3.\n\nFinal answer: 3.\n\n**Why the two-pointer approach is correct:** Since all Pᵢ > 0, the window sum is monotonically increasing when expanding right and monotonically decreasing when shrinking left. For each right endpoint r, define f(r) as the smallest left endpoint such that sum(P[f(r)..r]) ≤ S. We proved that f is non-decreasing: f(r) ≤ f(r+1). This is because any l < f(r) has sum(P[l..r]) > S, and since P[r+1] > 0, sum(P[l..r+1]) > S as well, so l < f(r+1). Therefore, the left pointer never needs to move backward, and the total number of pointer movements across the entire algorithm is at most 2N.\n\nThe answer is max over all r of (r - f(r) + 1), which the algorithm computes correctly.",
+    "complexity_analysis": "**Time complexity:** O(N) — The right pointer advances N times (once per iteration). The left pointer also advances at most N times total (it never exceeds N). Each advance involves O(1) work (addition/subtraction and comparison). Total work is O(N). With N ≤ 10⁵, this is about 2 × 10⁵ operations, well within the 1-second time limit.\n\n**Space complexity:** O(N) — We store the array of N power consumptions. The sliding window uses O(1) additional variables (left, current_sum, max_len). Total memory is about 10⁵ × 8 bytes ≈ 800 KB, well within the 256 MB limit.",
+    "alternative_approaches": [
+      "Prefix sums + binary search: Compute prefix sums, then for each right endpoint r, binary search for the smallest l such that prefix[r+1] - prefix[l] ≤ S. This gives O(N log N) time. It is correct and faster than brute force, but slower than the O(N) sliding window. It also works when elements can be negative (unlike the two-pointer approach), making it more general.",
+      "Dynamic programming: Define dp[i] = maximum window length ending at index i. The transition is dp[i] = dp[i-1] + 1 if the extended window sum ≤ S, otherwise shrink from the left. This is essentially the sliding window approach rephrased in DP terms and has the same O(N) time complexity."
+    ],
+    "common_mistakes": [
+      "A common mistake is to sort the power consumptions and greedily pick the smallest elements until the sum exceeds S. This seems reasonable because it maximizes the count of elements within the budget. However, it ignores the consecutiveness constraint — the problem requires a contiguous subarray, not an arbitrary subset. Counterexample: P = [5, 1, 5, 1, 5], S = 2. Sorting gives [1, 1, 5, 5, 5], and picking the 2 smallest gives sum 2 ≤ 2, count 2. But the two 1s are at positions 2 and 4 (1-indexed), which are not consecutive. The correct answer is 1: no two consecutive elements have sum ≤ 2 (all adjacent pairs include a 5).",
+      "Another mistake is to start from the left, greedily include lanterns until the sum exceeds S, and output the count. This only considers a single window starting at index 1 and misses longer windows starting elsewhere. Counterexample: P = [2, 3, 1, 1, 1], S = 4. Starting from the left: include P[1]=2 (sum 2 ≤ 4), include P[2]=3 (sum 5 > 4). Stop. Length = 1. But the correct answer is 3: the subarray [1, 1, 1] (lanterns 3–5) has sum 3 ≤ 4.",
+      "A subtle mistake is to use a fixed window size (e.g., ⌊S / min(Pᵢ)⌋) and slide it across the array. The optimal window size varies depending on the local elements, so a fixed window size does not adapt. Counterexample: P = [1, 1, 100, 1, 1], S = 3. min(P) = 1, fixed size = 3. But all windows of size 3 include 100 (sum > 3). The correct answer is 2: subarray [1, 1] at positions 1–2 or 4–5."
+    ]
+  },
+  "quality_report": {
+    "shield_scores": {
+      "statement_clarity": 9,
+      "constraint_solution_alignment": 9,
+      "solution_correctness": 9,
+      "test_coverage": 9,
+      "pedagogical_value": 9,
+      "difficulty_calibration": 8,
+      "story_quality": 9,
+      "sample_test_quality": 9,
+      "subtask_design": 8,
+      "overall_elegance": 9
+    },
+    "sword_findings": [
+      "Minor: no test with N=2 for minimal non-trivial window coverage. Low severity."
+    ],
+    "pipeline_rounds": 1,
+    "warnings": []
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "verdict": "APPROVED",
+  "shield_check": {
+    "statement_clarity": {
+      "score": 9,
+      "issues": [
+        "The formal definition with 1-based indexing and the explicit fallback (output 0 if no valid pair exists) eliminates ambiguity. The input/output format is precise."
+      ]
+    },
+    "constraint_solution_alignment": {
+      "score": 9,
+      "issues": [
+        "N ≤ 10⁵ with O(N) sliding window gives ~2×10⁵ operations, well within the 1-second time limit. The next-slower approach O(N²) with N = 10⁵ gives ~5×10⁹ operations, which definitively fails. Constraints force O(N)."
+      ]
+    },
+    "solution_correctness": {
+      "score": 9,
+      "issues": [
+        "The monotonicity argument is valid and specific to positive elements. Pseudocode correctly handles all edge cases including single elements, all-fit, and none-fit scenarios."
+      ]
+    },
+    "test_coverage": {
+      "score": 9,
+      "issues": [
+        "16 test cases across all 4 categories: 4 basic, 5 edge_case, 4 adversarial, 3 boundary. Each wrong approach has a dedicated adversarial test. Stress test configured with 500 random cases."
+      ]
+    },
+    "pedagogical_value": {
+      "score": 9,
+      "issues": [
+        "Problem clearly teaches variable-size sliding window with the two-pointer technique. The 'longest subarray with bounded sum' is a foundational pattern that transfers to many other problems."
+      ]
+    },
+    "difficulty_calibration": {
+      "score": 8,
+      "issues": [
+        "Appropriately rated at 1200 (easy). The Bloom level 'apply' matches the tier. The insight (recognizing sliding window applicability via positive-element monotonicity) is accessible to the target audience."
+      ]
+    },
+    "story_quality": {
+      "score": 9,
+      "issues": [
+        "The festival lanterns story is engaging, neutral, and naturally suggests contiguous segments. It does not reveal the algorithm. The visual metaphor of 'lighting up consecutive lanterns' maps cleanly to subarray selection."
+      ]
+    },
+    "sample_test_quality": {
+      "score": 9,
+      "issues": [
+        "Three samples cover: basic window in the middle (sample 1), large elements blocking long windows (sample 2), and all elements fitting (sample 3). Each has a clear explanation."
+      ]
+    },
+    "subtask_design": {
+      "score": 8,
+      "issues": [
+        "Two subtasks with progressive difficulty: small N (30 pts) allows O(N²), full N (70 pts) requires O(N). Point distribution rewards the optimal approach."
+      ]
+    },
+    "overall_elegance": {
+      "score": 9,
+      "issues": [
+        "Clean variable-size sliding window structure. The two-pointer technique is simple yet instructive. The problem is a solid educational example that teaches the core sliding window pattern."
+      ]
+    }
+  },
+  "sword_check": {
+    "ambiguity_found": [],
+    "unsolvable_cases": [],
+    "weak_test_coverage": [
+      "Minor: no test with N=2 to verify minimal non-trivial window behavior. Low severity since the sliding window handles this naturally."
+    ],
+    "wrong_approaches_that_pass": []
+  },
+  "revision_target": "problem_writer",
+  "specific_feedback": "All quality dimensions score ≥ 8. No critical or major Sword findings. The problem is approved as-is. Minor suggestion: consider adding a test with N=2 for completeness, but this is not blocking.",
+  "round": 1,
+  "max_rounds": 2
+}

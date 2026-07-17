@@ -1,0 +1,32 @@
+{
+  "domain": "dsa",
+  "topic": "sliding window",
+  "subtopic": "variable-size sliding window",
+  "difficulty": {
+    "codeforces_rating": 1200,
+    "tier": "easy",
+    "bloom_level": "apply"
+  },
+  "learning_objective": "After solving this problem, the student will be able to identify when a longest-subarray-with-bounded-sum problem admits a two-pointer sliding window approach and implement it to achieve O(N) time complexity.",
+  "prerequisites": [
+    "array traversal and index manipulation",
+    "prefix sums and subarray sum computation",
+    "understanding of O(N) vs O(N²) complexity",
+    "basic two-pointer technique",
+    "handling of 64-bit integer sums"
+  ],
+  "core_concept": "variable_size_sliding_window",
+  "tags": [
+    "sliding window",
+    "two pointers",
+    "arrays",
+    "subarray",
+    "implementation"
+  ],
+  "constraint_hints": {
+    "n_range": [1, 100000],
+    "expected_complexity": "O(N)",
+    "time_limit_seconds": 1
+  },
+  "story_direction": "A town is preparing for a festival and must illuminate a parade route with N lanterns. Each lantern has a known power consumption. The town has a single generator with a fixed power capacity S. The goal is to find the maximum number of consecutive lanterns that can be simultaneously powered without exceeding the generator's capacity."
+}

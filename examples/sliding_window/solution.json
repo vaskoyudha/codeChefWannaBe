@@ -1,0 +1,44 @@
+{
+  "approach": "Variable-size sliding window (two pointers). Maintain a window [left, right] and its sum. Expand the window by moving right from left to N-1, adding P[right] to the running sum. Whenever the sum exceeds S, shrink the window from the left by incrementing left and subtracting P[left] from the sum, until the sum is ≤ S again. After each adjustment, update the answer with the current window size (right - left + 1). The key insight is that because all Pᵢ are positive, the window sum is monotonically increasing as we expand right and monotonically decreasing as we shrink left. This guarantees that the two-pointer approach correctly finds the longest valid subarray.",
+  "pseudocode": [
+    "function solve():",
+    "    read N, S",
+    "    read array P of N integers",
+    "",
+    "    left = 0",
+    "    current_sum = 0",
+    "    max_len = 0",
+    "",
+    "    for right = 0 to N - 1:",
+    "        current_sum = current_sum + P[right]",
+    "        while current_sum > S:",
+    "            current_sum = current_sum - P[left]",
+    "            left = left + 1",
+    "        max_len = max(max_len, right - left + 1)",
+    "",
+    "    print max_len"
+  ],
+  "time_complexity": "O(N) — both pointers left and right traverse the array from left to right. Each element is added to the window sum exactly once (when right passes over it) and removed at most once (when left passes over it). The total number of pointer movements is at most 2N, giving O(N) total operations. With N ≤ 10⁵, this comfortably fits within the 1-second time limit.",
+  "space_complexity": "O(N) — to store the array of N power consumptions. The sliding window uses O(1) additional variables (left, current_sum, max_len).",
+  "correctness_argument": "**Technique: Monotonicity of window sums with positive elements.**\n\nDefine the problem as: find max(r - l + 1) such that sum(P[l..r]) ≤ S, where 0 ≤ l ≤ r < N.\n\n*Key property:* Since all Pᵢ ≥ 1 > 0, for a fixed right endpoint r, if sum(P[l..r]) ≤ S, then sum(P[l'..r]) ≤ S for all l' > l (removing elements from the left can only decrease the sum). This means for each r, the set of valid left endpoints forms a contiguous range [f(r), r] for some function f(r).\n\n*Monotonicity of f:* We claim f(r) ≤ f(r+1). Suppose f(r) = l₀, meaning sum(P[l₀..r]) ≤ S. When we move to r+1, we need sum(P[l..r+1]) ≤ S. Since sum(P[l₀..r+1]) = sum(P[l₀..r]) + P[r+1], this might exceed S. But any l > l₀ that was invalid for r (i.e., sum(P[l..r]) > S was never the case — all l ≥ l₀ were valid for r) might or might not be valid for r+1. However, any l < l₀ that was invalid for r (sum(P[l..r]) > S) is also invalid for r+1 (since P[r+1] > 0 makes the sum even larger). Therefore, f(r+1) ≥ f(r).\n\n*Algorithm correctness:* The sliding window maintains left = f(right) for each right. When we advance right by 1, we add P[right] to the sum. If the sum exceeds S, we increment left until sum ≤ S, which correctly computes f(right). Since f is non-decreasing, left never needs to move backward. The maximum window size right - left + 1 over all right values is the answer.\n\n*Completeness:* Every possible right endpoint is considered, and for each, we find the smallest valid left endpoint (giving the longest window ending at right). The global maximum over all right endpoints is the answer.",
+  "brute_force_solution": {
+    "approach": "Enumerate all O(N²) pairs (l, r) with l ≤ r. For each pair, compute sum(P[l..r]) using prefix sums in O(1) and check if it is ≤ S. Track the maximum (r - l + 1) among all valid pairs.",
+    "time_complexity": "O(N²) — there are N(N+1)/2 pairs, and each check is O(1) with prefix sums. With N = 10⁵, this gives ~5 × 10⁹ operations, which exceeds the 1-second time limit.",
+    "use": "Use this brute force to verify the reference solution on small inputs (N ≤ 1000). Generate random test cases with small N, run both solutions, and compare outputs. Any mismatch indicates a bug in the reference solution."
+  },
+  "common_wrong_approaches": [
+    {
+      "approach": "Sort the power consumptions and greedily pick the smallest elements until the sum exceeds S. Output the count of picked elements.",
+      "why_wrong": "This ignores the consecutiveness constraint. The problem requires a contiguous subarray, not an arbitrary subset. Sorting destroys the original order. Counterexample: P = [5, 1, 5, 1, 5], S = 2. Sorting gives [1, 1, 5, 5, 5]. Picking the 2 smallest: 1 + 1 = 2 ≤ 2, count = 2. But the two 1s are at positions 2 and 4 (1-indexed), which are not consecutive. The actual answer is 1: no two consecutive elements have sum ≤ 2 (all adjacent pairs include a 5)."
+    },
+    {
+      "approach": "Start from the left, greedily include lanterns until the sum exceeds S, then output the count of included lanterns.",
+      "why_wrong": "This only considers windows starting at index 1 and misses longer windows starting elsewhere. Counterexample: P = [2, 3, 1, 1, 1], S = 4. Starting from the left: include P[1]=2 (sum 2 ≤ 4), include P[2]=3 (sum 5 > 4). Stop. Length = 1. But the correct answer is 3: the subarray [1, 1, 1] (lanterns 3–5) has sum 3 ≤ 4."
+    },
+    {
+      "approach": "Use a fixed window size of ⌊S / min(Pᵢ)⌋ and slide it across the array, returning this fixed size if any window fits.",
+      "why_wrong": "The optimal window size varies depending on the local elements. A fixed window size does not adapt to the actual power consumptions. Counterexample: P = [1, 1, 100, 1, 1], S = 3. min(P) = 1, fixed size = 3. Window [1,1,100] has sum 102 > 3, window [1,100,1] has sum 102 > 3, window [100,1,1] has sum 102 > 3. So fixed-size approach outputs 0 or falls back to a smaller size without properly searching. The correct answer is 2: subarray [1, 1] at positions 1–2 or 4–5."
+    }
+  ],
+  "solvability_verdict": "success"
+}
